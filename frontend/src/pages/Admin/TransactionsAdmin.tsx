@@ -4,28 +4,10 @@ import { getAllTransactions } from "../../api/transactionApi";
 import { useQuery } from "@tanstack/react-query";
 
 const AdminTransactions: React.FC = () => {
-  // const [transactions, setTransactions] = useState<any[]>([]);
-  // const [loading, setLoading] = useState(true);
-
   const { data: transactions = [], isLoading } = useQuery({
     queryKey: ["transactions"],
     queryFn: getAllTransactions,
   });
-
-  // useEffect(() => {
-  //   fetchAllTransactions();
-  // }, []);
-
-  // const fetchAllTransactions = async () => {
-  //   try {
-  //     const data = await getAllTransactions();
-  //     setTransactions(data);
-  //   } catch (err) {
-  //     console.error("Error fetching all transactions:", err);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
   if (isLoading) return <p>Loading all transactions...</p>;
 

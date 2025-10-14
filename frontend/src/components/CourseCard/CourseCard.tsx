@@ -7,7 +7,7 @@ import { useUser } from "../../context/UserContext";
 import { useNavigate } from "react-router-dom";
 
 export interface Course {
-  _id: string;
+  id: string;
   image: string;
   category: string;
   tag: string;
@@ -31,22 +31,24 @@ const CourseCard: React.FC<{
 
   const enrollMutation = useMutation({
     mutationFn: (courseId: string) => createEnrollment({ courseId }),
-    onSuccess: (_, courseId) => {
+    onSuccess: async (_, courseId) => {
       queryClient.setQueryData<string[]>(["enrolled"], (old = []) => [
         ...old,
         courseId,
       ]);
       alert("You have been enrolled in this free course!");
+      await queryClient.invalidateQueries({ queryKey: ["enrolled"] });
       updateRole("student");
       onEnrollSuccess?.(courseId);
     },
+
     onError: (err: any) => {
       alert(err?.response?.data?.error || "Enrollment failed. Try again.");
     },
   });
 
   const [modalOpen, setModalOpen] = useState(false);
-  const isEnroll = enrolledCourses.includes(course._id);
+  const isEnroll = enrolledCourses.includes(course.id);
   const [loading, setLoading] = useState(false);
 
   const handleEnroll = async (e: React.MouseEvent) => {
@@ -70,29 +72,17 @@ const CourseCard: React.FC<{
       }
       setLoading(true);
 
-      if (course.price === 0) {
-        enrollMutation.mutate(course._id, {
+      if (Number(course.price) === 0) {
+        enrollMutation.mutate(course.id, {
           onSettled: () => setLoading(false),
         });
         return;
       }
 
       navigate("/checkout", { state: { course } });
-
-      //stripe checkout page
-      // const res = await axios.post(
-      //   "http://localhost:8080/api/payment/create-checkout-session",
-      //   { courseId: course._id },
-      //   { headers: { Authorization: `Bearer ${token}` } }
-      // );
-
-      // window.location.href = res.data.url;
     } catch (error: any) {
-      console.error("Payment session failed:", error);
-      alert(
-        error.response?.data?.error ||
-          "Payment session could not be created. Try again."
-      );
+      console.error(error);
+
       setLoading(false);
     }
   };

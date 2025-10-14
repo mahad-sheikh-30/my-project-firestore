@@ -35,6 +35,8 @@ backend/node_modules/
 backend/dist/
 backend/build/
 backend/*.tsbuildinfo
+backend/serviceAccountKey.json
+
 
 # === Frontend (React/Vite/TS) ===
 frontend/node_modules/

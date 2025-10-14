@@ -1,103 +1,139 @@
 const express = require("express");
-const Enrollment = require("../models/enrollment");
-const Course = require("../models/course");
+const { db, admin } = require("../firestore");
 const auth = require("../middleware/auth");
-const router = express.Router();
-const { User } = require("../models/user");
+const adminMiddleware = require("../middleware/admin");
 
-const admin = require("../middleware/admin");
+const router = express.Router();
+
+const enrollmentsRef = db.collection("enrollments");
+const coursesRef = db.collection("courses");
+const usersRef = db.collection("users");
+const teachersRef = db.collection("teachers");
 
 router.post("/", auth, async (req, res) => {
   try {
     const { courseId } = req.body;
-    const userId = req.user._id;
+    const userId = req.user?.uid;
 
-    if (!courseId) {
+    if (!userId)
+      return res.status(401).json({ error: "User not authenticated" });
+    if (!courseId)
       return res.status(400).json({ error: "courseId is required" });
-    }
 
-    const enrollment = new Enrollment({ userId, courseId });
-    await enrollment.save();
+    const existingSnap = await enrollmentsRef
+      .where("userId", "==", userId)
+      .where("courseId", "==", courseId)
+      .get();
 
-    await Course.findByIdAndUpdate(courseId, { $inc: { studentsCount: 1 } });
+    if (!existingSnap.empty)
+      return res.status(400).json({ error: "Already enrolled in this course" });
 
-    const updatedUser = await User.findByIdAndUpdate(
+    const enrollmentData = {
       userId,
-      { role: "student" },
-      { new: true }
-    );
-    if (!updatedUser) {
-      console.log("User not found");
-      return;
-    }
-    res.status(201).json(enrollment);
-  } catch (err) {
-    if (err.code === 11000) {
-      return res
-        .status(400)
-        .json({ error: "User already enrolled in this course" });
-    }
-    res.status(500).json({ error: err.message });
-  }
-});
+      courseId,
+      enrolledAt: admin.firestore.Timestamp.now(),
+    };
+    const docRef = await enrollmentsRef.add(enrollmentData);
 
-router.get("/", auth, async (req, res) => {
-  try {
-    const enrollments = await Enrollment.find()
-      .populate("userId", "name email")
-      .populate({
-        path: "courseId",
-        populate: { path: "teacherId", select: "name role" },
-      });
+    await coursesRef.doc(courseId).update({
+      studentsCount: admin.firestore.FieldValue.increment(1),
+    });
 
-    res.json(enrollments);
+    const userDoc = await usersRef.doc(userId).get();
+    if (userDoc.exists && userDoc.data().role !== "admin") {
+      await usersRef.doc(userId).update({ role: "student" });
+    }
+
+    res.status(201).json({ id: docRef.id, ...enrollmentData });
   } catch (err) {
+    console.error("Enrollment creation error:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
 router.get("/my", auth, async (req, res) => {
   try {
-    const userId = req.user._id;
-    const enrollments = await Enrollment.find({ userId }).select("courseId");
-    const courseIds = enrollments.map((e) => e.courseId.toString());
+    const userId = req.user?.uid;
+    if (!userId)
+      return res.status(401).json({ error: "User not authenticated" });
+
+    const snapshot = await enrollmentsRef.where("userId", "==", userId).get();
+    if (snapshot.empty) return res.json([]);
+
+    const courseIds = snapshot.docs.map((doc) => doc.data().courseId);
+
     res.json(courseIds);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Fetch my enrollments error:", err);
+    res.status(500).json({ error: "Failed to fetch enrollments" });
   }
 });
 
-router.delete("/:id", auth, admin, async (req, res) => {
+router.get("/", auth, adminMiddleware, async (req, res) => {
   try {
-    const enrollmentId = req.params.id;
+    const snapshot = await enrollmentsRef.get();
+    const enrollments = [];
 
-    const enrollment = await Enrollment.findByIdAndDelete(enrollmentId);
-    if (!enrollment) {
-      return res.status(404).json({ error: "Enrollment not found" });
+    for (const doc of snapshot.docs) {
+      const data = doc.data();
+
+      const userSnap = await usersRef.doc(data.userId).get();
+      const user = userSnap.exists ? userSnap.data() : {};
+
+      const courseSnap = await coursesRef.doc(data.courseId).get();
+      const course = courseSnap.exists ? courseSnap.data() : {};
+
+      let teacherName = "N/A";
+      if (course.teacherId) {
+        const teacherSnap = await teachersRef.doc(course.teacherId).get();
+        teacherName = teacherSnap.exists ? teacherSnap.data().name : "N/A";
+      }
+
+      enrollments.push({
+        _id: doc.id,
+        user: { name: user.name || "N/A" },
+        course: {
+          title: course.title || "Untitled",
+          teacher: teacherName,
+        },
+      });
     }
 
-    await Course.findByIdAndUpdate(enrollment.courseId, {
-      $inc: { studentsCount: -1 },
-    });
-
-    const stillEnrolled = await Enrollment.exists({
-      userId: enrollment.userId,
-    });
-
-    let newRole = null;
-    if (!stillEnrolled) {
-      const updatedUser = await User.findByIdAndUpdate(
-        enrollment.userId,
-        { role: "user" },
-        { new: true }
-      );
-      newRole = updatedUser;
-    }
-    return res.json({
-      newRole: newRole?.role || null,
-    });
+    res.json(enrollments);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Fetch enrollments error:", err);
+    res.status(500).json({ error: "Failed to fetch enrollments" });
+  }
+});
+
+router.delete("/:id", auth, adminMiddleware, async (req, res) => {
+  try {
+    const enrollmentDoc = enrollmentsRef.doc(req.params.id);
+    const enrollmentSnap = await enrollmentDoc.get();
+
+    if (!enrollmentSnap.exists)
+      return res.status(404).json({ error: "Enrollment not found" });
+
+    const { userId, courseId } = enrollmentSnap.data();
+
+    await enrollmentDoc.delete();
+
+    await coursesRef
+      .doc(courseId)
+      .update({ studentsCount: admin.firestore.FieldValue.increment(-1) });
+
+    const remainingSnap = await enrollmentsRef
+      .where("userId", "==", userId)
+      .get();
+
+    if (remainingSnap.empty) {
+      await usersRef.doc(userId).update({ role: "user" });
+    }
+
+    res.json({ message: "Enrollment deleted successfully" });
+  } catch (err) {
+    console.error("Delete enrollment error:", err);
+    res.status(500).json({ error: "Failed to delete enrollment" });
   }
 });
 

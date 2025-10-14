@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../SignIn/Auth.css";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../firebase";
 import API from "../../api/axiosInstance";
 
 const SignUp: React.FC = () => {
@@ -10,34 +12,34 @@ const SignUp: React.FC = () => {
     email: "",
     password: "",
   });
-
   const [error, setError] = useState("");
-
   const navigate = useNavigate();
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setData({ ...data, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     try {
-      const { data: res } = await API.post("/users", data);
-      navigate("/signin");
-      console.log(res.message);
-    } catch (error: any) {
-      if (
-        error.response &&
-        error.response.status >= 400 &&
-        error.response.status <= 500
-      ) {
-        setError(error.response.data.message);
-        return;
-      }
-    }
-    console.log("Sign Up Data:", data);
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        data.email,
+        data.password
+      );
+      const firebaseUser = userCredential.user;
 
-    setData({ name: "", phone: "", email: "", password: "" });
+      await API.post("/users", {
+        name: data.name,
+        phone: data.phone,
+        email: firebaseUser.email,
+        uid: firebaseUser.uid,
+      });
+
+      navigate("/signin");
+    } catch (err: any) {
+      setError(err.message);
+    }
   };
 
   return (

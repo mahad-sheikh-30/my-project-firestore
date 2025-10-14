@@ -21,11 +21,6 @@ const Courses: React.FC = () => {
   const [page, setPage] = useState(1);
   const [activeOption, setActiveOption] = useState("all");
 
-  // const [courses, setCourses] = useState<Course[]>([]);
-  // const [loading, setLoading] = useState(true);
-  // const [filteredCourses, setFilteredCourses] = useState<Course[]>([]);
-  // const [enrolledCourses, setEnrolledCourses] = useState<string[]>([]);
-
   const { user } = useUser();
   const queryClient = useQueryClient();
 
@@ -39,27 +34,6 @@ const Courses: React.FC = () => {
     queryFn: getEnrolledCourses,
     enabled: !!user?.token,
   });
-
-  // useEffect(() => {
-  //   loadCourses();
-  // }, []);
-
-  // const loadCourses = async () => {
-  //   try {
-  //     const [allCourses, enrolled] = await Promise.all([
-  //       getAllCourses(),
-  //       getEnrolledCourses(),
-  //     ]);
-  //     setCourses(allCourses);
-  //     setFilteredCourses(allCourses);
-  //     setEnrolledCourses(enrolled);
-  //     }
-  //   } catch (err) {
-  //     console.error("Error fetching courses:", err);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
   const loading = coursesLoading || enrolledLoading;
 
@@ -99,10 +73,10 @@ const Courses: React.FC = () => {
         );
         break;
       case "enrolled":
-        list = list.filter((c: Course) => enrolledCourses.includes(c._id));
+        list = list.filter((c: Course) => enrolledCourses.includes(c.id));
         break;
       case "not-enrolled":
-        list = list.filter((c: Course) => !enrolledCourses.includes(c._id));
+        list = list.filter((c: Course) => !enrolledCourses.includes(c.id));
         break;
       default:
         break;
@@ -116,7 +90,7 @@ const Courses: React.FC = () => {
       ...old,
       courseId,
     ]);
-    queryClient.invalidateQueries({ queryKey: ["enrolled"] });
+    queryClient.invalidateQueries({ queryKey: ["enrolled"] }); // ✅ force refetch from backend
   };
 
   const start = (page - 1) * ITEMS_PER_PAGE;
@@ -243,7 +217,7 @@ const Courses: React.FC = () => {
         {paginatedCourses.length > 0 ? (
           paginatedCourses.map((course: Course) => (
             <CourseCard
-              key={course._id}
+              key={course.id}
               course={course}
               enrolledCourses={enrolledCourses}
               onEnrollSuccess={handleEnrollSuccess}

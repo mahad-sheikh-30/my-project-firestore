@@ -16,6 +16,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 import CourseCard from "../../components/CourseCard/CourseCard";
 import type { Course } from "../../components/CourseCard/CourseCard";
 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createEnrollment } from "../../api/enrollmentApi";
+
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY!);
 
 const CheckoutForm: React.FC<{ clientSecret: string; course: Course }> = ({
@@ -28,6 +31,18 @@ const CheckoutForm: React.FC<{ clientSecret: string; course: Course }> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const { updateRole } = useUser();
+  const queryClient = useQueryClient();
+
+  const enrollMutation = useMutation({
+    mutationFn: (courseId: string) => createEnrollment({ courseId }),
+    onSuccess: (_, courseId) => {
+      queryClient.setQueryData<string[]>(["enrolled"], (old = []) => [
+        ...old,
+        courseId,
+      ]);
+      queryClient.invalidateQueries({ queryKey: ["enrolled"] });
+    },
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,19 +54,28 @@ const CheckoutForm: React.FC<{ clientSecret: string; course: Course }> = ({
 
     const { error, paymentIntent } = await stripe.confirmCardPayment(
       clientSecret,
-      {
-        payment_method: { card: cardElement },
-      }
+      { payment_method: { card: cardElement } }
     );
 
     if (error) {
       setError(error.message || "Payment failed");
       setLoading(false);
-    } else if (paymentIntent?.status === "succeeded") {
-      alert("Payment successful!");
-      updateRole("student");
-      navigate(`/courses`);
+      return;
     }
+
+    if (paymentIntent?.status === "succeeded") {
+      try {
+        await enrollMutation.mutateAsync(course.id);
+        alert("Payment successful! You’re now enrolled in the course.");
+        updateRole("student");
+        navigate("/courses");
+      } catch (err) {
+        console.error("Enrollment after payment failed:", err);
+        alert("Payment done, but enrollment failed. Please refresh.");
+      }
+    }
+
+    setLoading(false);
   };
 
   const elementStyle = {
@@ -104,12 +128,12 @@ const PaymentPage: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!course?._id) return;
-    API.post("/payment/create-payment-intent", { courseId: course._id })
+    if (!course?.id) return;
+    API.post("/payment/create-payment-intent", { courseId: course.id })
       .then((res) => setClientSecret(res.data.clientSecret))
       .catch((err) => {
         console.error(err);
-        navigate("/error");
+        navigate("/");
       });
   }, [course, navigate]);
 

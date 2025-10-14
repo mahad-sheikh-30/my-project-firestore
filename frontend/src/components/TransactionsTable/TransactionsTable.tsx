@@ -1,4 +1,3 @@
-// src/components/TransactionsTable/TransactionsTable.tsx
 import React from "react";
 import "./TransactionsTable.css";
 
@@ -8,7 +7,7 @@ interface Transaction {
   amount: number;
   createdAt: string;
   userId?: { name: string; email: string };
-  courseId?: { title: string; price: number; category?: string };
+  courseId?: { title: string; price: number };
 }
 
 interface Props {
@@ -54,7 +53,7 @@ const TransactionsTable: React.FC<Props> = ({ transactions, isAdmin }) => {
                     </td>
                   )}
                   <td>{tx.courseId?.title || "N/A"}</td>
-                  <td>${tx.amount.toFixed(2)}</td>
+                  <td>${Number(tx.courseId?.price.toFixed(2))}</td>
                   <td>{fDate}</td>
                   <td>{fTime}</td>
                 </tr>

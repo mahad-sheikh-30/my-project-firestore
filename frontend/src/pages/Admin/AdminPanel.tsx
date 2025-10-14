@@ -18,19 +18,6 @@ const AdminPanel: React.FC = () => {
 
   if (isLoading) return <h2>Loading users...</h2>;
 
-  //  useEffect(() => {
-  //   fetchUsers();
-  // }, []);
-  // const [users, setUsers] = useState<any>([]);
-  // const fetchUsers = async () => {
-  //   try {
-  //     const res = await API.get("/users");
-  //     setUsers(res.data);
-  //   } catch (err) {
-  //     console.error("Error fetching users:", err);
-  //   }
-  // };
-
   return (
     <>
       <div className="admin-page">

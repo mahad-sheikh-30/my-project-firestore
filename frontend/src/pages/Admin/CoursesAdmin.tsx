@@ -13,7 +13,7 @@ import type { Course } from "../../components/CourseCard/CourseCard";
 
 const CoursesAdmin: React.FC = () => {
   const [formData, setFormData] = useState({
-    _id: "",
+    id: "",
     title: "",
     category: "",
     tag: "Free",
@@ -24,10 +24,6 @@ const CoursesAdmin: React.FC = () => {
     teacherId: "",
     popular: false,
   });
-
-  // const [courses, setCourses] = useState<any[]>([]);
-  // const [teachers, setTeachers] = useState<any[]>([]);
-  // const [loading, setLoading] = useState(true);
 
   const [isEditing, setIsEditing] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -71,31 +67,6 @@ const CoursesAdmin: React.FC = () => {
     onError: () => alert("Failed to delete course!"),
   });
 
-  // useEffect(() => {
-  //   loadCourses();
-  //   loadTeachers();
-  // }, []);
-
-  // const loadTeachers = async () => {
-  //   try {
-  //     const data = await getAllTeachers();
-  //     setTeachers(data);
-  //     setLoading(false);
-  //   } catch (err) {
-  //     console.error("Failed to load teachers:", err);
-  //   }
-  // };
-
-  // const loadCourses = async () => {
-  //   try {
-  //     const data = await getAllCourses();
-  //     setCourses(data);
-  //     setLoading(false);
-  //   } catch (err) {
-  //     console.error("Failed to load courses:", err);
-  //   }
-  // };
-
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -137,17 +108,13 @@ const CoursesAdmin: React.FC = () => {
       }
 
       if (isEditing) {
-        await updateMutation.mutateAsync({ id: formData._id, form: fileData });
-        // await updateCourse(formData._id, fileData);
-        // alert("Course updated!");
+        await updateMutation.mutateAsync({ id: formData.id, form: fileData });
       } else {
         await createMutation.mutateAsync(fileData);
-        // await createCourse(fileData);
-        // alert("Course added!");
       }
 
       setFormData({
-        _id: "",
+        id: "",
         title: "",
         category: "",
         tag: "Free",
@@ -161,7 +128,6 @@ const CoursesAdmin: React.FC = () => {
 
       setImagePreview(null);
       setIsEditing(false);
-      // await loadCourses();
     } catch (err) {
       console.error("Error saving course:", err);
       alert("Failed!");
@@ -173,7 +139,7 @@ const CoursesAdmin: React.FC = () => {
   const handleEdit = (course: any) => {
     setFormData({
       ...course,
-      teacherId: course.teacherId._id,
+      teacherId: course.teacherId.id,
     });
     setImagePreview(course.image || null);
     setIsEditing(true);
@@ -184,8 +150,6 @@ const CoursesAdmin: React.FC = () => {
     if (!window.confirm("Are you sure you want to delete this course?")) return;
     try {
       await deleteMutation.mutateAsync(id);
-      // await deleteCourse(id);
-      // loadCourses();
     } catch (err) {
       console.error("Error deleting course:", err);
       alert("Delete failed");
@@ -238,6 +202,7 @@ const CoursesAdmin: React.FC = () => {
                 type="number"
                 name="price"
                 placeholder="Price"
+                required
                 value={formData.price || ""}
                 onChange={handleChange}
                 min="0"
@@ -305,7 +270,7 @@ const CoursesAdmin: React.FC = () => {
               >
                 <option value="">Select a teacher</option>
                 {teachers.map((teacher: any) => (
-                  <option key={teacher._id} value={teacher._id}>
+                  <option key={teacher.id} value={teacher.id}>
                     {teacher.name}
                   </option>
                 ))}
@@ -323,8 +288,12 @@ const CoursesAdmin: React.FC = () => {
             </label>
           </div>
 
-          <button type="submit">
-            {isEditing ? "Update Course" : "Add Course"}
+          <button type="submit" disabled={submitting}>
+            {submitting
+              ? "Processing..."
+              : isEditing
+              ? "Update Course"
+              : "Add Course"}
           </button>
         </form>
       </div>
@@ -337,7 +306,7 @@ const CoursesAdmin: React.FC = () => {
         ) : (
           <div className="comp-list">
             {courses.map((course: Course) => (
-              <div key={course._id} className="comp-card">
+              <div key={course.id} className="comp-card">
                 <div className="info">
                   <h3>{course.title}</h3>
                 </div>
@@ -350,7 +319,7 @@ const CoursesAdmin: React.FC = () => {
                   </button>
                   <button
                     className="delete-btn"
-                    onClick={() => handleDelete(course._id)}
+                    onClick={() => handleDelete(course.id)}
                   >
                     Delete
                   </button>

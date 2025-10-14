@@ -8,10 +8,6 @@ import { useQuery } from "@tanstack/react-query";
 const ITEMS_PER_PAGE = 6;
 
 const TeacherPage: React.FC = () => {
-  // const [teachers, setTeachers] = useState<Teacher[]>([]);
-  // const [loading, setLoading] = useState(true);
-  // const [filteredTeachers, setFilteredTeachers] = useState<Teacher[]>([]);
-
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
@@ -23,22 +19,6 @@ const TeacherPage: React.FC = () => {
   });
 
   const loading = teachersLoading;
-
-  // useEffect(() => {
-  //   loadTeachers();
-  // }, []);
-
-  // const loadTeachers = async () => {
-  //   try {
-  //     const data = await getAllTeachers();
-  //     setTeachers(data);
-  //     setFilteredTeachers(data);
-  //   } catch (err) {
-  //     console.error("Error fetching teachers:", err);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value.toLowerCase());

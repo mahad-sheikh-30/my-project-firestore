@@ -1,13 +1,11 @@
 import React from "react";
-import { useState, useEffect } from "react";
-import API from "../../api/axiosInstance";
+
 import "./AdminForms.css";
 import { useUser } from "../../context/UserContext";
 import { deleteEnrollment, getAllEnrollments } from "../../api/enrollmentApi";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const EnrollmentsAdmin: React.FC = () => {
-  // const [enrollments, setEnrollments] = useState<any[]>([]);
   const { updateRole, user } = useUser();
 
   if (!user?.token) {
@@ -25,22 +23,10 @@ const EnrollmentsAdmin: React.FC = () => {
     mutationFn: (id: string) => deleteEnrollment(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["enrollments"] });
-      alert("Enrollment added!");
+      alert("Enrollment deleted!");
     },
     onError: () => alert("Failed to delete enrollment!"),
   });
-  // useEffect(() => {
-  //   fetchEnrollments();
-  // }, []);
-  // const fetchEnrollments = async () => {
-  //   try {
-  //     const res = await API.get("/enrollments");
-  //     setEnrollments(res.data);
-  //     console.log(res.data);
-  //   } catch (err) {
-  //     console.error("Error fetching courses:", err);
-  //   }
-  // };
 
   const handleDelete = async (id: string) => {
     if (!window.confirm("Are you sure you want to delete this enrollment?"))
@@ -50,8 +36,6 @@ const EnrollmentsAdmin: React.FC = () => {
       if (res.newRole) {
         updateRole(res.newRole);
       }
-      // alert(res.message);
-      // fetchEnrollments();
     } catch (error: any) {
       if (error.response) {
         alert(error.response.data.error || "Failed to delete enrollment");
@@ -77,14 +61,13 @@ const EnrollmentsAdmin: React.FC = () => {
                 <div key={enroll._id} className="comp-card">
                   <div className="info">
                     <p>
-                      <strong>Student: </strong> {enroll.userId?.name}
+                      <strong>Student: </strong> {enroll.user?.name}
                     </p>
                     <p>
-                      <strong>Course: </strong> {enroll.courseId?.title}
+                      <strong>Course: </strong> {enroll.course?.title}
                     </p>
                     <p>
-                      <strong>Teacher: </strong>{" "}
-                      {enroll.courseId?.teacherId?.name}
+                      <strong>Teacher: </strong> {enroll.course?.teacher}
                     </p>
                   </div>
                   <button

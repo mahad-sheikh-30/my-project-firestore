@@ -1,51 +1,51 @@
 const express = require("express");
-const bcrypt = require("bcrypt");
-const { User, validate } = require("../models/user");
-const admin = require("../middleware/admin");
-const auth = require("../middleware/auth");
+const { db, admin } = require("../firestore");
+const authMiddleware = require("../middleware/auth");
+const adminMiddleware = require("../middleware/admin");
 
 const router = express.Router();
 
 router.post("/", async (req, res) => {
   try {
-    const { error } = validate(req.body);
-    if (error)
-      return res.status(400).send({ message: error.details[0].message });
-
-    const user = await User.findOne({ email: req.body.email });
-    if (user)
-      return res
-        .status(409)
-        .send({ message: "User with given email already exists!" });
-
-    const adminExists = await User.findOne({ role: "admin" });
-
-    let role = "user";
-    if (!adminExists) {
-      role = "admin";
+    const { name, email, phone, uid } = req.body;
+    if (!name || !email || !phone || !uid) {
+      return res.status(400).json({ message: "All fields are required" });
     }
 
-    const salt = await bcrypt.genSalt(Number(process.env.SALT));
-    const hashPassword = await bcrypt.hash(req.body.password, salt);
+    const userRef = db.collection("users");
+    const snapshot = await userRef.where("email", "==", email).get();
+    if (!snapshot.empty) {
+      return res.status(409).json({ message: "User already exists" });
+    }
 
-    await new User({
-      ...req.body,
-      password: hashPassword,
+    const adminSnapshot = await userRef.where("role", "==", "admin").get();
+    const role = adminSnapshot.empty ? "admin" : "user";
+
+    await userRef.doc(uid).set({
+      name,
+      email,
+      phone,
+      uid,
       role,
-    }).save();
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
 
-    res.status(201).send({ message: `User created successfully as ${role}` });
-  } catch (error) {
-    res.status(500).send({ message: "Internal Server Error" });
+    res.status(201).json({ message: `User created as ${role}`, role });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Internal server error" });
   }
 });
 
-router.get("/", auth, admin, async (req, res) => {
+router.get("/", authMiddleware, adminMiddleware, async (req, res) => {
   try {
-    const users = await User.find().select("-password");
+    const usersRef = db.collection("users");
+    const snapshot = await usersRef.get();
+    const users = snapshot.docs.map((doc) => doc.data());
     res.json(users);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error(err);
+    res.status(500).json({ message: "Internal server error" });
   }
 });
 

@@ -37,7 +37,7 @@ const Popular: React.FC = () => {
         <div className="popular-cards">
           {popularCourses.map((course: Course) => (
             <CourseCard
-              key={course._id}
+              key={course.id}
               course={course}
               enrolledCourses={enrolledCourses}
             />

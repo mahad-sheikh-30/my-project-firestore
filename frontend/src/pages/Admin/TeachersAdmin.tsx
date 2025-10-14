@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import "./AdminForms.css";
 import {
@@ -10,28 +10,12 @@ import {
 
 const TeachersAdmin: React.FC = () => {
   const [formData, setFormData] = useState({
-    _id: "",
+    id: "",
     name: "",
     role: "",
     rating: 0,
     image: null as File | null,
   });
-
-  // useEffect(() => {
-  //   loadTeachers();
-  // }, []);
-
-  // const loadTeachers = async () => {
-  //   try {
-  //     const data = await getAllTeachers();
-  //     setTeachers(data);
-  //     setLoading(false);
-  //   } catch (err) {
-  //     console.error("Error fetching teachers:", err);
-  //   }
-  // };
-  // const [teachers, setTeachers] = useState<any[]>([]);
-  // const [loading, setLoading] = useState(true);
 
   const [isEditing, setIsEditing] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -108,13 +92,13 @@ const TeachersAdmin: React.FC = () => {
       }
 
       if (isEditing) {
-        await updateMutation.mutateAsync({ id: formData._id, form: fileData });
+        await updateMutation.mutateAsync({ id: formData.id, form: fileData });
       } else {
         await createMutation.mutateAsync(fileData);
       }
 
       setFormData({
-        _id: "",
+        id: "",
         image: null as File | null,
         name: "",
         role: "",
@@ -124,7 +108,6 @@ const TeachersAdmin: React.FC = () => {
       setIsEditing(false);
     } catch (err) {
       console.error("Error adding teacher:", err);
-      alert("Failed to add teacher!");
     } finally {
       setSubmitting(false);
     }
@@ -147,6 +130,7 @@ const TeachersAdmin: React.FC = () => {
                 placeholder="Instructor Name"
                 value={formData.name}
                 onChange={handleChange}
+                required
               />
             </label>
 
@@ -158,6 +142,7 @@ const TeachersAdmin: React.FC = () => {
                 placeholder="Role"
                 value={formData.role}
                 onChange={handleChange}
+                required
               />
             </label>
           </div>
@@ -170,6 +155,7 @@ const TeachersAdmin: React.FC = () => {
                 placeholder="Rating"
                 value={formData.rating || ""}
                 onChange={handleChange}
+                required
                 min="0"
                 max="5"
                 step="0.1"
@@ -199,7 +185,13 @@ const TeachersAdmin: React.FC = () => {
               </div>
             )}
           </div>
-          <button type="submit">{isEditing ? "Update " : "Add "}Teacher</button>
+          <button type="submit" disabled={submitting}>
+            {submitting
+              ? "Processing..."
+              : isEditing
+              ? "Update Teacher"
+              : "Add Teacher"}
+          </button>
         </form>
       </div>
 
@@ -211,7 +203,7 @@ const TeachersAdmin: React.FC = () => {
         ) : (
           <div className="comp-list">
             {teachers.map((teacher: any) => (
-              <div key={teacher._id} className="comp-card">
+              <div key={teacher.id} className="comp-card">
                 <div className="info">
                   <h3>{teacher.name}</h3>
                 </div>
@@ -224,7 +216,7 @@ const TeachersAdmin: React.FC = () => {
                   </button>
                   <button
                     className="delete-btn"
-                    onClick={() => handleDelete(teacher._id)}
+                    onClick={() => handleDelete(teacher.id)}
                   >
                     Delete
                   </button>

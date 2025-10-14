@@ -1,15 +1,21 @@
 import axios from "axios";
+import { auth } from "../firebase";
 
 const API = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "http://localhost:8080/api",
 });
 
-
 API.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("token");
-    if (token && config.headers) {
+  async (config) => {
+    const user = auth.currentUser;
+    if (user && config.headers) {
+      const token = await user.getIdToken();
       config.headers.Authorization = `Bearer ${token}`;
+    } else {
+      const storedToken = localStorage.getItem("token");
+      if (storedToken && config.headers) {
+        config.headers.Authorization = `Bearer ${storedToken}`;
+      }
     }
     return config;
   },
@@ -25,15 +31,13 @@ API.interceptors.response.use(
       if (status === 401) {
         alert("Session expired. Please log in again.");
         localStorage.removeItem("token");
-        window.location.href = "/signin"; 
-      }
-
-      else if (status === 403) {
+        window.location.href = "/signin";
+      } else if (status === 403) {
         alert("Access denied. Admins only.");
       }
     }
-
     return Promise.reject(error);
   }
 );
+
 export default API;
