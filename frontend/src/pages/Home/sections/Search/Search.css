@@ -1,0 +1,132 @@
+.search {
+  margin-top: 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: center;
+}
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 500px;
+  background: white;
+  border-radius: 20px;
+  padding: 5px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+.search-box input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 10px 12px;
+  font-size: 15px;
+  border-radius: 25px;
+}
+.search-box img {
+  width: 25px;
+  height: 25px;
+  margin-left: 10px;
+}
+.search-box .search-btn {
+  border: none;
+  color: white;
+  border-radius: 13px;
+  background: linear-gradient(140deg, var(--primary), var(--secondary));
+}
+.search-btn:hover {
+  filter: brightness(1.05);
+}
+.below-search {
+  margin: 60px 110px;
+  display: flex;
+}
+.search-benefits {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 5px;
+}
+.search-benefits img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+}
+.benefits {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  justify-content: start;
+}
+.search-benefits p {
+  font-size: 13px;
+}
+.benefits-title {
+  color: #c30bd4;
+}
+.search-pic {
+  width: 50%;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.pics {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 0;
+  background-color: var(--bg);
+  outline: 4px dashed purple;
+  outline-offset: 8px;
+  border-radius: 70px;
+  overflow: hidden;
+  height: 330px;
+  width: 330px;
+}
+.pics img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.top-left {
+  border-bottom-right-radius: 50px;
+}
+.top-right {
+  border-bottom-left-radius: 50px;
+}
+.bottom-left {
+  border-top-right-radius: 50px;
+}
+.bottom-right {
+  border-top-left-radius: 50px;
+}
+/* search */
+@media (max-width: 1024px) {
+  .below-search {
+    margin: 60px 10px;
+  }
+}
+@media (max-width: 768px) {
+  .search-box {
+    gap: 0;
+    width: 350px;
+  }
+  .below-search {
+    margin: 10px;
+    display: flex;
+    flex-direction: column;
+    padding: 10px 0;
+  }
+  .search-pic {
+    width: 100%;
+    height: 350px;
+  }
+  .search-benefits {
+    width: 100%;
+    gap: 16px;
+    padding: 10px 5%;
+  }
+}

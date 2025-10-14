@@ -1,0 +1,32 @@
+.stud-rev-card {
+  padding: 15px;
+  width: 330px;
+  height: 170px;
+  border-radius: 16px;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: 0 9px 24px rgba(80, 0, 120, 0.28);
+}
+.st-img {
+  width: 70px;
+  height: 70px;
+  border: 2px solid black;
+  border-radius: 50%;
+}
+.st-details {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+}
+
+.st-details .st-rev {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.st-rev h3 {
+  color: var(--purple);
+}

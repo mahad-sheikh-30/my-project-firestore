@@ -1,0 +1,148 @@
+.card {
+  padding: 5px;
+  margin: 5px;
+  width: 310px;
+  min-height: 430px;
+  border-radius: 16px;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  color: black;
+  box-shadow: 0 9px 24px rgba(80, 0, 120, 0.28);
+  cursor: pointer;
+}
+
+.user-img {
+  width: 28px;
+  height: 28px;
+}
+.main-img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 10;
+  border-radius: 14px;
+  object-fit: cover;
+}
+.card .title {
+  width: 90%;
+  min-height: 60px;
+  line-height: 1.1;
+  color: black;
+}
+.card .price {
+  width: 50%;
+}
+.cat-tag,
+.meta-info,
+.pri-ins {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.cat {
+  background: rgba(128, 0, 128, 0.1);
+  padding: 5px 8px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+.tag {
+  background: var(--primary);
+  color: white;
+  padding: 5px 8px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+.card-details {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 10px 10px;
+}
+.enroll-btn {
+  padding: 0.5rem 1.4rem;
+  background: linear-gradient(140deg, var(--primary), var(--secondary));
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.enroll-btn:hover:not(:disabled) {
+  background: purple;
+}
+.enrolled-btn {
+  background: black;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(6px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+  padding: 0;
+  cursor: pointer;
+}
+
+.modal-content {
+  display: flex;
+  width: 95%;
+  height: 80%;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 0 10%;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  cursor: default;
+}
+
+.modal-img-fullscreen {
+  width: 70%;
+  object-fit: cover;
+}
+
+.modal-details-column {
+  width: auto;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.modal-details-column .cat-tag,
+.modal-details-column .title,
+.modal-details-column .courses,
+.modal-details-column .students,
+.modal-details-column .price,
+.modal-details-column .instruct {
+  margin-bottom: 10px;
+}
+
+.cat-tag {
+  display: flex;
+  justify-content: space-between;
+}
+.modal-details-column .enroll-btn {
+  margin-top: auto;
+  padding: 12px;
+  font-size: 16px;
+}
+@media (max-width: 768px) {
+  .modal-content {
+    flex-direction: column;
+    height: 65%;
+  }
+
+  .modal-img-fullscreen {
+    width: 100%;
+    height: 45%;
+  }
+}

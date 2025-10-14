@@ -1,0 +1,14 @@
+.trans-page {
+  margin-left: 120px;
+}
+
+@media (max-width: 920px) {
+  .trans-page {
+    margin-left: 30px;
+  }
+}
+@media (max-width: 768px) {
+  .trans-page {
+    margin-left: 10px;
+  }
+}

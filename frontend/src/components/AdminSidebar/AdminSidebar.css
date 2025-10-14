@@ -1,0 +1,127 @@
+.admin-sidebar {
+  width: 220px;
+  height: 100vh;
+  background: var(--primary);
+  color: white;
+  padding: 20px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.3s ease;
+  z-index: 1000;
+}
+
+.sidebar-title {
+  margin-bottom: 20px;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.sidebar-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-links li {
+  margin: 15px 0;
+}
+
+.sidebar-links a {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  display: block;
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+
+.sidebar-links a:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.btns {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.btns button {
+  border: 1px solid white;
+}
+.admin-content {
+  margin-left: 240px;
+  padding: 20px;
+  transition: margin-left 0.3s ease;
+}
+.admin-backdrop {
+  display: none;
+}
+.bar {
+  display: block;
+  width: 30px;
+  height: 3px;
+  background: white;
+  margin: 4px 0;
+  border-radius: 18px;
+}
+@media (max-width: 768px) {
+  .admin-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    transform: translateX(-100%);
+    width: 250px;
+    padding: 15px;
+    background: var(--primary);
+    z-index: 2000;
+    overflow-y: auto;
+  }
+
+  .admin-sidebar.active {
+    transform: translateX(0);
+  }
+
+  .sidebar-title {
+    display: block;
+    font-size: 18px;
+    text-align: center;
+    margin-left: 10px;
+  }
+
+  .admin-toggle-btn {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 10px 12px;
+    border-radius: 5px;
+    font-size: 18px;
+    z-index: 2100;
+    cursor: pointer;
+  }
+
+  .admin-content {
+    margin-left: 0;
+    padding: 70px 15px 20px;
+  }
+  .admin-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 1500;
+  }
+
+  .admin-sidebar.active + .admin-backdrop {
+    display: block;
+  }
+  .sidebar-links li {
+    font-size: 18px;
+  }
+}

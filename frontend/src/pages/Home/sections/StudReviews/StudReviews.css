@@ -1,0 +1,47 @@
+.stud-rev-section{
+    background: linear-gradient(140deg,var(--primary),var(--secondary));
+    padding:40px 110px;
+}
+.stud-head{
+    text-align: center;
+    color: white;
+    max-width: 60%;
+    margin: 0 auto;
+}
+.stud-head h1{
+    font-size: 30px;
+    font-weight: 800;
+}
+.stud-rev-section p{
+    font-size: 13px;
+    font-weight: 500;
+}
+.stud-rev-cards{
+    margin-top: 40px;
+    display: flex;
+    justify-content: center;
+    gap:10px;
+    flex-wrap: wrap;
+}
+
+
+@media (max-width: 768px) {
+.stud-rev-section{
+    padding:30px 10px;
+}
+.stud-head{
+    text-align: center;
+    color: white;
+    max-width: 90%;
+    margin: 0 auto;
+}
+.stud-head h1{
+    font-size: 24px;
+}
+.stud-rev-section p{
+    font-size: 12px;
+}
+.stud-rev-cards{
+    justify-content: center;
+}
+}

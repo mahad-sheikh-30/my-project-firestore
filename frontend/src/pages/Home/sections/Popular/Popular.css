@@ -1,0 +1,55 @@
+.popular {
+  background: linear-gradient(140deg, var(--primary), var(--secondary));
+  padding: 30px 110px;
+}
+.popular-head {
+  text-align: center;
+  color: white;
+  max-width: 60%;
+  margin: 0 auto;
+  padding-bottom: 20px;
+}
+.popular-cards {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+.courses-page {
+  background: var(--bg);
+  padding: 40px 110px;
+}
+.courses-page h1 {
+  text-align: center;
+  color: white;
+  margin-bottom: 30px;
+}
+.courses-page .popular-cards {
+  margin-top: 0;
+}
+/* popular */
+@media (max-width: 1024px) {
+  .popular {
+    padding: 30px 10px;
+  }
+  .popular-head {
+    max-width: 80%;
+  }
+  .popular-cards {
+    gap: 15px;
+    justify-content: center;
+  }
+}
+@media (max-width: 768px) {
+  .popular {
+    padding: 30px 10px;
+  }
+  .popular-head {
+    max-width: 100%;
+  }
+  .popular-cards {
+    gap: 15px;
+    justify-content: center;
+  }
+}

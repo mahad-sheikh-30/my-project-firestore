@@ -1,0 +1,124 @@
+/* ===== Payment Page Layout ===== */
+.payment-page {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 3rem;
+  padding: 20px 15%;
+}
+
+.payment-left {
+  flex: 1;
+  max-width: 500px;
+}
+
+.payment-form {
+  width: 450px;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 40px 32px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  margin-top: 40px;
+  transition: all 0.3s ease;
+}
+
+.checkout-heading {
+  text-align: center;
+  font-size: 22px;
+  color: #222;
+  margin-bottom: 25px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.field-label {
+  font-size: 14px;
+  color: #444;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.input-box {
+  border: 1px solid #dcdcdc;
+  border-radius: 8px;
+  background: #fafafa;
+  padding: 12px;
+  margin-bottom: 18px;
+}
+
+.row {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+}
+
+.col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.payment-form .pay-btn {
+  width: 100%;
+  padding: 12px 0;
+  border: none;
+  border-radius: 8px;
+  background: var(--clr-bg);
+  color: #fff;
+  font-size: 17px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
+
+.pay-btn:hover {
+  background: linear-gradient(90deg, #554bff, #6b63ff);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(99, 91, 255, 0.3);
+}
+
+.pay-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error {
+  color: #e63946;
+  font-size: 14px;
+  margin-top: 10px;
+  text-align: center;
+}
+@media (max-width: 900px) {
+  .payment-page {
+    flex-direction: column-reverse;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 20px;
+    text-align: center;
+    gap: 1rem;
+  }
+
+  .payment-left,
+  .payment-right {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .payment-form {
+    margin-top: 0;
+    width: 100%;
+    max-width: 350px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .payment-form .input-box {
+    width: 100%;
+  }
+}

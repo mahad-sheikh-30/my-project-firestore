@@ -1,0 +1,36 @@
+.transactions-table {
+  width: 85%;
+  margin: 2rem auto;
+  overflow-x: auto;
+}
+
+.transactions-table table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.transactions-table th,
+.transactions-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border: 1px solid #ddd;
+}
+
+.transactions-table th {
+  background-color: var(--primary);
+  color: white;
+  font-weight: 600;
+}
+
+.transactions-table tr:hover {
+  background-color: #f2f2f2;
+}
+
+@media (max-width: 768px) {
+  .transactions-table {
+    width: 95%;
+  }
+}
