@@ -75,7 +75,6 @@
 }
 
 .pay-btn:hover {
-  background: linear-gradient(90deg, #554bff, #6b63ff);
   transform: translateY(-2px);
   box-shadow: 0 6px 14px rgba(99, 91, 255, 0.3);
 }

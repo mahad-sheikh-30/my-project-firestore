@@ -1,22 +1,22 @@
 .contact-container {
   max-width: 600px;
-  margin: 50px auto;
-  padding: 20px;
+  margin: 10px auto 100px auto;
+  padding: 12px 20px;
   background: #f8f9fa;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .contact-container h1 {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   color: #333;
 }
 
 .contact-form {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 11px;
 }
 
 .contact-form label {
@@ -55,4 +55,3 @@
   background: var(--text);
   color: white;
 }
-

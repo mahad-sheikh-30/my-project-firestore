@@ -20,6 +20,7 @@ router.post("/", auth, admin, upload.single("image"), async (req, res) => {
       studentsCount: Number(req.body.studentsCount) || 0,
       coursesCount: Number(req.body.coursesCount) || 0,
       price: Number(req.body.price) || 0,
+      popular: req.body.popular === "true" || req.body.popular === true,
     };
 
     const docRef = await db.collection("courses").add(courseData);
@@ -111,6 +112,7 @@ router.put("/:id", auth, admin, upload.single("image"), async (req, res) => {
       studentsCount: Number(req.body.studentsCount) || 0,
       coursesCount: Number(req.body.coursesCount) || 0,
       price: Number(req.body.price) || 0,
+      popular: req.body.popular === "true" || req.body.popular === true,
     };
 
     await docRef.update(updateData);

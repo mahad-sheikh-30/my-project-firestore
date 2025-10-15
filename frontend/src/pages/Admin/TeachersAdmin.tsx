@@ -7,6 +7,8 @@ import {
   updateTeacher,
   deleteTeacher,
 } from "../../api/teacherApi";
+import FullPageLoader from "../../components/FullPageLoader/FullPageLoader";
+import toast from "react-hot-toast";
 
 const TeachersAdmin: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -27,15 +29,16 @@ const TeachersAdmin: React.FC = () => {
     queryKey: ["teachers"],
     queryFn: getAllTeachers,
   });
+
   const loading = teachersLoading;
 
   const createMutation = useMutation({
     mutationFn: (form: FormData) => createTeacher(form),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["teachers"] });
-      alert("Teacher added!");
+      toast.success("Teacher added!");
     },
-    onError: () => alert("Failed to add teacher!"),
+    onError: () => toast.error("Failed to add teacher!"),
   });
 
   const updateMutation = useMutation({
@@ -43,18 +46,18 @@ const TeachersAdmin: React.FC = () => {
       updateTeacher(id, form),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["teachers"] });
-      alert("Teacher updated!");
+      toast.success("Teacher updated!");
     },
-    onError: () => alert("Failed to update teacher!"),
+    onError: () => toast.error("Failed to update teacher!"),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteTeacher(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["teachers"] });
-      alert("Teacher deleted!");
+      toast.success("Teacher deleted!");
     },
-    onError: () => alert("Failed to delete teacher"),
+    onError: () => toast.error("Failed to delete teacher"),
   });
 
   const handleEdit = (teacher: any) => {
@@ -199,7 +202,7 @@ const TeachersAdmin: React.FC = () => {
         <h2>All Teachers</h2>
         <hr />
         {loading ? (
-          <h2>Loading teachers...</h2>
+          <FullPageLoader />
         ) : (
           <div className="comp-list">
             {teachers.map((teacher: any) => (

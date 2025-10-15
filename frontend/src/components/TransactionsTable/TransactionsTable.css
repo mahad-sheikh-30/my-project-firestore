@@ -1,36 +1,22 @@
 .transactions-table {
-  width: 85%;
-  margin: 2rem auto;
-  overflow-x: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
 }
 
-.transactions-table table {
-  width: 100%;
-  border-collapse: collapse;
+.datatable-wrapper {
+  /* width: 80%; */
+  margin: 0 auto;
   background: #fff;
-  border-radius: 8px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   overflow: hidden;
 }
 
-.transactions-table th,
-.transactions-table td {
-  padding: 12px 15px;
-  text-align: left;
-  border: 1px solid #ddd;
-}
-
-.transactions-table th {
-  background-color: var(--primary);
-  color: white;
-  font-weight: 600;
-}
-
-.transactions-table tr:hover {
-  background-color: #f2f2f2;
-}
-
+/* Optional: make it responsive on small screens */
 @media (max-width: 768px) {
-  .transactions-table {
+  .datatable-wrapper {
     width: 95%;
   }
 }

@@ -19,26 +19,35 @@ router.post("/firebase-login", async (req, res) => {
         .get();
       const role = adminSnapshot.empty ? "admin" : "user";
 
-      await userRef.set({
+      const newUser = {
         uid,
         email,
-        name: name || "",
+        name: name || decodedToken.name || "",
         role,
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      };
+
+      await userRef.set(newUser);
+
+      return res.status(201).json({
+        ...newUser,
+        message: "User created and logged in successfully",
       });
     }
 
-    const userData = (await userRef.get()).data();
+    const userData = userDoc.data();
 
     res.status(200).json({
-      uid: userData.uid,
-      email: userData.email,
-      name: userData.name,
-      role: userData.role,
+      ...userData,
       message: "Logged in successfully",
     });
   } catch (err) {
     console.error("Firebase login error:", err);
+
+    if (err.code === "auth/invalid-credential") {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
     res.status(500).json({ message: "Firebase login failed" });
   }
 });

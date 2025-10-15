@@ -1,14 +1,17 @@
-import React, { useReducer, useState } from "react";
-import axios from "axios";
+import React, { useReducer } from "react";
 import "./Contact.css";
 import API from "../../api/axiosInstance";
+import { useMutation } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner";
+
 const Contact: React.FC = () => {
   interface formState {
     name: string;
     phone: string;
     email: string;
     comments: string;
-    submitted: Boolean;
+    submitted: boolean;
   }
 
   const initialState: formState = {
@@ -27,7 +30,7 @@ const Contact: React.FC = () => {
     | { type: "SUBMIT" }
     | { type: "RESET" };
 
-  const formReducer = (state: formState, action: formAction) => {
+  const formReducer = (state: formState, action: formAction): formState => {
     switch (action.type) {
       case "SET_NAME":
         return { ...state, name: action.payload };
@@ -45,99 +48,100 @@ const Contact: React.FC = () => {
         return state;
     }
   };
+
   const [state, dispatch] = useReducer(formReducer, initialState);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  // 🧩 Define the mutation
+  const contactMutation = useMutation({
+    mutationFn: async () => {
+      return await API.post("/contact", {
+        name: state.name,
+        phone: state.phone,
+        email: state.email,
+        comments: state.comments,
+      });
+    },
+    onSuccess: () => {
+      toast.success("Form submitted successfully!");
+      dispatch({ type: "RESET" });
+    },
+    onError: (err: any) => {
+      const message =
+        err.response?.data?.message || err.request
+          ? "No response from server. Please check backend."
+          : err.message || "Failed to submit form";
+      toast.error(message);
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     dispatch({ type: "SUBMIT" });
-
-    try {
-      const res = await API.post("/contact", state);
-      alert("Form submitted successfully!");
-      console.log("Response:", res.data);
-
-      dispatch({ type: "RESET" });
-    } catch (err: any) {
-      if (err.response) {
-        alert(err.response.data.message || "Failed to submit form");
-        console.error("Error:", err.response.data);
-      } else if (err.request) {
-        alert("No response from server. Please check backend.");
-      } else {
-        alert("Error: " + err.message);
-      }
-    }
-  };
-
-  const handleNameChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    dispatch({ type: "SET_NAME", payload: e.target.value });
-  };
-  const handlePhoneChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    dispatch({ type: "SET_PHONE", payload: e.target.value });
-  };
-  const handleEmailChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    dispatch({ type: "SET_EMAIL", payload: e.target.value });
-  };
-  const handleCommentChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    dispatch({ type: "SET_COMMENT", payload: e.target.value });
+    contactMutation.mutate();
   };
 
   return (
     <div className="contact-container">
       <h1>Contact Us</h1>
+
       <form onSubmit={handleSubmit} className="contact-form">
         <label>
           Name:
           <input
             type="text"
-            id="name"
             name="name"
             value={state.name}
-            onChange={handleNameChange}
+            onChange={(e) =>
+              dispatch({ type: "SET_NAME", payload: e.target.value })
+            }
             required
+            disabled={contactMutation.isPending}
           />
         </label>
+
         <label>
           Phone:
           <input
             type="tel"
-            id="phone"
             name="phone"
             value={state.phone}
-            onChange={handlePhoneChange}
+            onChange={(e) =>
+              dispatch({ type: "SET_PHONE", payload: e.target.value })
+            }
             required
+            disabled={contactMutation.isPending}
           />
         </label>
+
         <label>
           Email:
           <input
             type="email"
-            id="email"
             name="email"
             value={state.email}
-            onChange={handleEmailChange}
+            onChange={(e) =>
+              dispatch({ type: "SET_EMAIL", payload: e.target.value })
+            }
             required
+            disabled={contactMutation.isPending}
           />
         </label>
 
         <label>
           Comments:
           <textarea
-            id="comments"
             name="comments"
             value={state.comments}
-            onChange={handleCommentChange}
-          ></textarea>
+            onChange={(e) =>
+              dispatch({ type: "SET_COMMENT", payload: e.target.value })
+            }
+            disabled={contactMutation.isPending}
+          />
         </label>
-        <button type="submit">Submit</button>
+
+        <button type="submit" disabled={contactMutation.isPending}>
+          {contactMutation.isPending ? <LoadingSpinner /> : "Submit"}
+        </button>
       </form>
     </div>
   );

@@ -2,6 +2,7 @@
   background: var(--bg);
   padding: 20px 110px;
   min-height: 100vh;
+  position: relative;
 }
 .teachers-title {
   text-align: center;

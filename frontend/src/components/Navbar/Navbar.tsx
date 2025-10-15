@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Navbar.css";
 import crossImg from "../../assets/closee.png";
-import userImg from "../../assets/user-circle.png";
 import { useUser } from "../../context/UserContext";
 import userIcon from "../../assets/user.png";
+import toast from "react-hot-toast";
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
@@ -26,6 +26,7 @@ const Navbar: React.FC = () => {
 
   const handleSignOut = () => {
     logout();
+    toast.success("Signed out successfully!");
     navigate("/signin");
     setIsMenuOpen(false);
   };

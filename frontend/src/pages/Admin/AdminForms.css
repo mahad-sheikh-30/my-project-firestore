@@ -5,6 +5,7 @@
   border: 1px solid black;
   border-radius: 10px;
   max-width: 850px;
+  position: relative;
 }
 
 .form-container {
@@ -126,6 +127,9 @@ button[type="submit"]:hover {
   height: 100px;
   object-fit: cover;
   border-radius: 5px;
+}
+.admin-trans {
+  position: relative;
 }
 
 @media (max-width: 768px) {

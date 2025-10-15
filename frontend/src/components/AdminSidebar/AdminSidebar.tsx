@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./AdminSidebar.css";
+import toast from "react-hot-toast";
 
 const AdminSidebar: React.FC = () => {
   const navigate = useNavigate();
@@ -8,6 +9,7 @@ const AdminSidebar: React.FC = () => {
 
   const handleSignOut = () => {
     localStorage.removeItem("token");
+    toast.success("Signed out successfully!");
     navigate("/signin");
   };
 

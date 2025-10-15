@@ -25,17 +25,6 @@ app.post(
 app.use(cors());
 app.use(express.json());
 
-app.get("/test-firestore", async (req, res) => {
-  try {
-    const docRef = db.collection("test").doc("hello");
-    await docRef.set({ message: "Firestore is connected!" });
-    const doc = await docRef.get();
-    res.json({ data: doc.data() });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/contact", contactRoutes);

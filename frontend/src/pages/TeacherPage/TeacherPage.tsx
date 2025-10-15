@@ -5,6 +5,7 @@ import "./TeacherPage.css";
 import searchIcon from "../../assets/search.png";
 import { getAllTeachers } from "../../api/teacherApi";
 import { useQuery } from "@tanstack/react-query";
+import FullPageLoader from "../../components/FullPageLoader/FullPageLoader";
 const ITEMS_PER_PAGE = 6;
 
 const TeacherPage: React.FC = () => {
@@ -54,11 +55,10 @@ const TeacherPage: React.FC = () => {
 
   const totalPages = Math.ceil(filteredTeachers.length / ITEMS_PER_PAGE);
 
-  if (loading) return <h2>Loading teachers...</h2>;
-
   return (
     <>
       <section className="teachers-page">
+        {loading && <FullPageLoader />}
         <h1 id="title">Meet Our Instructors</h1>
         <div className="head">
           <div className="search-bar">
@@ -109,13 +109,11 @@ const TeacherPage: React.FC = () => {
           )}
         </div>
         <div className="teachers-list">
-          {paginatedTeachers.length > 0 ? (
-            paginatedTeachers.map((teacher: Teacher) => (
-              <TeacherCard key={teacher.id} teacher={teacher} />
-            ))
-          ) : (
-            <h3>No teachers found</h3>
-          )}
+          {paginatedTeachers.length > 0
+            ? paginatedTeachers.map((teacher: Teacher) => (
+                <TeacherCard key={teacher.id} teacher={teacher} />
+              ))
+            : !loading && <h3>No teachers found</h3>}
         </div>
         {totalPages > 1 && (
           <div className="pagination">

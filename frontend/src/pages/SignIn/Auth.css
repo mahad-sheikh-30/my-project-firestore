@@ -1,16 +1,15 @@
-
 .auth-container {
   max-width: 600px;
-  margin: 50px auto;
-  padding: 20px;
+  margin: 10px auto 100px auto;
+  padding: 10px 20px;
   background: #f8f9fa;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .auth-container h1 {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
   color: #333;
 }
 
@@ -27,7 +26,7 @@
   color: #555;
 }
 
-.auth-form input{
+.auth-form input {
   padding: 10px;
   margin-top: 5px;
   border-radius: 8px;
@@ -35,10 +34,9 @@
   font-size: 14px;
 }
 
-
-.auth-form button {
+.auth-form .sign {
   padding: 12px;
-  background: var(--primary);
+  background: var(--clr-bg);
   color: white;
   border: none;
   border-radius: 8px;
@@ -47,14 +45,33 @@
   transition: 0.3s;
 }
 
-.auth-form button:hover {
-  background: var(--text);
-  color: white;
+.auth-form a {
+  font-weight: 600;
+  color: var(--primary);
+  padding-left: 10px;
+  text-decoration: none;
+}
+.google-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 15px;
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 5px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: 0.2s ease;
+  font-weight: 600;
 }
 
-.auth-form a{
-    font-weight: 600;
-    color: var(--primary);
-    padding-left: 10px;
-    text-decoration: none;
+.google-btn:hover {
+  background: #f5f5f5;
+}
+.google-btn img {
+  width: 30px;
+  height: 30px;
 }

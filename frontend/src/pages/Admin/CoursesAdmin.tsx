@@ -10,6 +10,8 @@ import {
   deleteCourse,
 } from "../../api/courseApi";
 import type { Course } from "../../components/CourseCard/CourseCard";
+import FullPageLoader from "../../components/FullPageLoader/FullPageLoader";
+import toast from "react-hot-toast";
 
 const CoursesAdmin: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -46,9 +48,9 @@ const CoursesAdmin: React.FC = () => {
     mutationFn: (form: FormData) => createCourse(form),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["courses"] });
-      alert("Course added!");
+      toast.success("Course added!");
     },
-    onError: () => alert("Failed to add course!"),
+    onError: () => toast.error("Failed to add course!"),
   });
 
   const updateMutation = useMutation({
@@ -56,15 +58,18 @@ const CoursesAdmin: React.FC = () => {
       updateCourse(id, form),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["courses"] });
-      alert("Course updated!");
+      toast.success("Course updated!");
     },
-    onError: () => alert("Failed to update course!"),
+    onError: () => toast.error("Failed to update course!"),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteCourse(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["courses"] }),
-    onError: () => alert("Failed to delete course!"),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["courses"] });
+      toast.success("Course deleted!");
+    },
+    onError: () => toast.error("Failed to delete course!"),
   });
 
   const handleChange = (
@@ -143,7 +148,7 @@ const CoursesAdmin: React.FC = () => {
     });
     setImagePreview(course.image || null);
     setIsEditing(true);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 70, behavior: "smooth" });
   };
 
   const handleDelete = async (id: string) => {
@@ -203,7 +208,7 @@ const CoursesAdmin: React.FC = () => {
                 name="price"
                 placeholder="Price"
                 required
-                value={formData.price || ""}
+                value={formData.price}
                 onChange={handleChange}
                 min="0"
               />
@@ -302,7 +307,7 @@ const CoursesAdmin: React.FC = () => {
         <h2>All Courses</h2>
         <hr />
         {loading ? (
-          <h2>Loading courses...</h2>
+          <FullPageLoader />
         ) : (
           <div className="comp-list">
             {courses.map((course: Course) => (

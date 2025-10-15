@@ -9,6 +9,7 @@ import { useLocation } from "react-router-dom";
 import { getAllCourses } from "../../api/courseApi";
 import { getEnrolledCourses } from "../../api/enrollmentApi";
 import { useUser } from "../../context/UserContext";
+import FullPageLoader from "../../components/FullPageLoader/FullPageLoader";
 
 const ITEMS_PER_PAGE = 6;
 
@@ -98,10 +99,10 @@ const Courses: React.FC = () => {
   const paginatedCourses = filteredCourses.slice(start, end);
 
   const totalPages = Math.ceil(filteredCourses.length / ITEMS_PER_PAGE);
-  if (loading) return <h2>Loading courses...</h2>;
 
   return (
     <section className="courses-page">
+      {loading && <FullPageLoader />}
       <h1 id="title">All Courses</h1>
       <div className="head">
         <div className="search-bar">
@@ -212,20 +213,17 @@ const Courses: React.FC = () => {
           </div>
         )}
       </div>
-
       <div className="popular-cards">
-        {paginatedCourses.length > 0 ? (
-          paginatedCourses.map((course: Course) => (
-            <CourseCard
-              key={course.id}
-              course={course}
-              enrolledCourses={enrolledCourses}
-              onEnrollSuccess={handleEnrollSuccess}
-            />
-          ))
-        ) : (
-          <h3>No courses found</h3>
-        )}
+        {paginatedCourses.length > 0
+          ? paginatedCourses.map((course: Course) => (
+              <CourseCard
+                key={course.id}
+                course={course}
+                enrolledCourses={enrolledCourses}
+                onEnrollSuccess={handleEnrollSuccess}
+              />
+            ))
+          : !loading && <h3>No courses found</h3>}
       </div>
       {totalPages > 1 && (
         <div className="pagination">

@@ -1,6 +1,7 @@
 import React from "react";
+import DataTable from "react-data-table-component";
 import "./TransactionsTable.css";
-
+import type { TableColumn } from "react-data-table-component";
 interface Transaction {
   _id: string;
   paymentIntentId: string;
@@ -13,55 +14,97 @@ interface Transaction {
 interface Props {
   transactions: Transaction[];
   isAdmin?: boolean;
+  isLoading?: boolean;
 }
 
 const TransactionsTable: React.FC<Props> = ({ transactions, isAdmin }) => {
+  const columns: TableColumn<Transaction>[] = [
+    ...(isAdmin
+      ? [
+          {
+            name: "User",
+            selector: (row: any) => row.userId?.name || "N/A",
+            sortable: true,
+            cell: (row: any) => (
+              <div>
+                <strong>{row.userId?.name || "N/A"}</strong>
+                <br />
+                <small>{row.userId?.email}</small>
+              </div>
+            ),
+            grow: 2,
+          },
+        ]
+      : []),
+    {
+      name: "Course",
+      selector: (row) => row.courseId?.title || "N/A",
+      sortable: true,
+      grow: 2,
+    },
+    {
+      name: "Amount",
+      selector: (row) =>
+        `$${row.courseId?.price ? row.courseId.price.toFixed(2) : "0.00"}`,
+      sortable: true,
+      grow: 1,
+    },
+    {
+      name: "Date",
+      selector: (row) => new Date(row.createdAt).toLocaleDateString(),
+      sortable: true,
+      grow: 1,
+    },
+    {
+      name: "Time",
+      selector: (row) =>
+        new Date(row.createdAt).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      grow: 1,
+    },
+  ];
+
   return (
     <div className="transactions-table">
-      <table>
-        <thead>
-          <tr>
-            {isAdmin && <th>User</th>}
-            <th>Course</th>
-            <th>Amount</th>
-            <th>Date</th>
-            <th>Time</th>
-          </tr>
-        </thead>
-        <tbody>
-          {transactions.length === 0 ? (
-            <tr>
-              <td colSpan={isAdmin ? 5 : 4} style={{ textAlign: "center" }}>
-                No transactions found.
-              </td>
-            </tr>
-          ) : (
-            transactions.map((tx) => {
-              const date = new Date(tx.createdAt);
-              const fDate = date.toLocaleDateString();
-              const fTime = date.toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              });
-
-              return (
-                <tr key={tx._id}>
-                  {isAdmin && (
-                    <td>
-                      {tx.userId?.name || "N/A"} <br />
-                      <small>{tx.userId?.email}</small>
-                    </td>
-                  )}
-                  <td>{tx.courseId?.title || "N/A"}</td>
-                  <td>${Number(tx.courseId?.price.toFixed(2))}</td>
-                  <td>{fDate}</td>
-                  <td>{fTime}</td>
-                </tr>
-              );
-            })
-          )}
-        </tbody>
-      </table>
+      <div
+        className="datatable-wrapper"
+        style={isAdmin ? { width: "95%" } : { width: "80%" }}
+      >
+        <DataTable
+          columns={columns}
+          data={transactions}
+          pagination
+          paginationPerPage={5}
+          paginationRowsPerPageOptions={[5, 10, 15]}
+          highlightOnHover
+          striped
+          responsive
+          noDataComponent="No transactions found."
+          customStyles={{
+            table: {
+              style: {
+                borderRadius: "10px",
+                overflowX: "auto",
+              },
+            },
+            headCells: {
+              style: {
+                backgroundColor: "var(--primary)",
+                color: "white",
+                fontWeight: "bold",
+                fontSize: "15px",
+              },
+            },
+            rows: {
+              style: {
+                borderBottom: "1px solid #ddd",
+              },
+            },
+          }}
+        />
+      </div>
     </div>
   );
 };

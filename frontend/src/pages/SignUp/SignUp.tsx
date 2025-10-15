@@ -4,6 +4,9 @@ import "../SignIn/Auth.css";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../firebase";
 import API from "../../api/axiosInstance";
+import { useMutation } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner";
 
 const SignUp: React.FC = () => {
   const [data, setData] = useState({
@@ -12,22 +15,19 @@ const SignUp: React.FC = () => {
     email: "",
     password: "",
   });
-  const [error, setError] = useState("");
+
   const navigate = useNavigate();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setData({ ...data, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    try {
+  const signUpMutation = useMutation({
+    mutationFn: async () => {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         data.email,
         data.password
       );
       const firebaseUser = userCredential.user;
+      console.log("user credentials:", userCredential);
+      console.log("Firebase user :", firebaseUser);
 
       await API.post("/users", {
         name: data.name,
@@ -35,11 +35,30 @@ const SignUp: React.FC = () => {
         email: firebaseUser.email,
         uid: firebaseUser.uid,
       });
-
+      return firebaseUser;
+    },
+    onSuccess: () => {
+      toast.success("Account created successfully!");
       navigate("/signin");
-    } catch (err: any) {
-      setError(err.message);
-    }
+    },
+    onError: (err: any) => {
+      let message = err.message || "Something went wrong.";
+      if (err.code === "auth/email-already-in-use")
+        message = "Email is already registered.";
+      if (err.code === "auth/invalid-email") message = "Invalid email address.";
+      if (err.code === "auth/weak-password")
+        message = "Password should be at least 6 characters.";
+      toast.error(message);
+    },
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setData({ ...data, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    signUpMutation.mutate();
   };
 
   return (
@@ -55,6 +74,7 @@ const SignUp: React.FC = () => {
               value={data.name}
               onChange={handleChange}
               required
+              disabled={signUpMutation.isPending}
             />
           </label>
           <label>
@@ -65,6 +85,7 @@ const SignUp: React.FC = () => {
               value={data.phone}
               onChange={handleChange}
               required
+              disabled={signUpMutation.isPending}
             />
           </label>
           <label>
@@ -75,6 +96,7 @@ const SignUp: React.FC = () => {
               value={data.email}
               onChange={handleChange}
               required
+              disabled={signUpMutation.isPending}
             />
           </label>
           <label>
@@ -85,12 +107,25 @@ const SignUp: React.FC = () => {
               value={data.password}
               onChange={handleChange}
               required
+              disabled={signUpMutation.isPending}
             />
           </label>
-          {error && <div className="error-message">{error}</div>}
-          <button type="submit">Sign Up</button>
+
+          <button
+            type="submit"
+            disabled={signUpMutation.isPending}
+            className="sign"
+          >
+            {signUpMutation.isPending ? <LoadingSpinner /> : "Sign Up"}
+          </button>
+
           <p>
-            Already have an account? <Link to="/signin">Sign In</Link>
+            Don’t have an account?
+            {signUpMutation.isPending ? (
+              <></>
+            ) : (
+              <Link to="/signin">Sign In</Link>
+            )}
           </p>
         </form>
       </div>
