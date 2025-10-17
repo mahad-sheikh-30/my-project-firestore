@@ -91,7 +91,7 @@ const Courses: React.FC = () => {
       ...old,
       courseId,
     ]);
-    queryClient.invalidateQueries({ queryKey: ["enrolled"] }); // ✅ force refetch from backend
+    queryClient.invalidateQueries({ queryKey: ["enrolled"] });
   };
 
   const start = (page - 1) * ITEMS_PER_PAGE;

@@ -27,27 +27,27 @@ router.get("/my", auth, async (req, res) => {
       .orderBy("createdAt", "desc")
       .get();
 
-    const transactions = [];
+    const transactions = await Promise.all(
+      txSnap.docs.map(async (doc) => {
+        const data = doc.data();
+        const courseSnap = await db
+          .collection("courses")
+          .doc(data.courseId)
+          .get();
+        const course = courseSnap.exists ? courseSnap.data() : {};
 
-    for (const doc of txSnap.docs) {
-      const data = doc.data();
-
-      const courseSnap = await db
-        .collection("courses")
-        .doc(data.courseId)
-        .get();
-      const course = courseSnap.exists ? courseSnap.data() : {};
-
-      transactions.push({
-        _id: doc.id,
-        paymentIntentId: data.paymentIntentId || "",
-        createdAt: formatDate(data.createdAt),
-        courseId: {
-          title: course.title || "N/A",
-          price: toNumber(course.price),
-        },
-      });
-    }
+        return {
+          _id: doc.id,
+          amount: toNumber(data.amount),
+          paymentIntentId: data.paymentIntentId || "",
+          createdAt: formatDate(data.createdAt),
+          courseId: {
+            title: course.title || "N/A",
+            price: toNumber(course.price),
+          },
+        };
+      })
+    );
 
     res.json(transactions);
   } catch (err) {
@@ -63,33 +63,33 @@ router.get("/", auth, adminMiddleware, async (req, res) => {
       .orderBy("createdAt", "desc")
       .get();
 
-    const transactions = [];
+    const transactions = await Promise.all(
+      txSnap.docs.map(async (doc) => {
+        const data = doc.data();
 
-    for (const doc of txSnap.docs) {
-      const data = doc.data();
+        const [userSnap, courseSnap] = await Promise.all([
+          db.collection("users").doc(data.userId).get(),
+          db.collection("courses").doc(data.courseId).get(),
+        ]);
 
-      const [userSnap, courseSnap] = await Promise.all([
-        db.collection("users").doc(data.userId).get(),
-        db.collection("courses").doc(data.courseId).get(),
-      ]);
+        const user = userSnap.exists ? userSnap.data() : {};
+        const course = courseSnap.exists ? courseSnap.data() : {};
 
-      const user = userSnap.exists ? userSnap.data() : {};
-      const course = courseSnap.exists ? courseSnap.data() : {};
-
-      transactions.push({
-        _id: doc.id,
-        paymentIntentId: data.paymentIntentId || "",
-        createdAt: formatDate(data.createdAt),
-        userId: {
-          name: user.name || "N/A",
-          email: user.email || "",
-        },
-        courseId: {
-          title: course.title || "N/A",
-          price: toNumber(course.price),
-        },
-      });
-    }
+        return {
+          _id: doc.id,
+          amount: toNumber(data.amount),
+          paymentIntentId: data.paymentIntentId || "",
+          createdAt: formatDate(data.createdAt),
+          userId: {
+            name: user.name || "N/A",
+            email: user.email || "",
+          },
+          courseId: {
+            title: course.title || "N/A",
+          },
+        };
+      })
+    );
 
     res.json(transactions);
   } catch (err) {

@@ -4,8 +4,15 @@ import "./AdminForms.css";
 import { useUser } from "../../context/UserContext";
 import { deleteEnrollment, getAllEnrollments } from "../../api/enrollmentApi";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import FullPageLoader from "../../components/FullPageLoader/FullPageLoader";
+
 import toast from "react-hot-toast";
+import AppDataTable from "../../components/AppDataTable/AppDataTable";
+
+const enrollmentColumns = [
+  { name: "Student", selector: (row: any) => row.user?.name, sortable: true },
+  { name: "Course", selector: (row: any) => row.course?.title },
+  { name: "Teacher", selector: (row: any) => row.course?.teacher },
+];
 
 const EnrollmentsAdmin: React.FC = () => {
   const { updateRole, user } = useUser();
@@ -20,6 +27,7 @@ const EnrollmentsAdmin: React.FC = () => {
     queryKey: ["enrollments"],
     queryFn: getAllEnrollments,
   });
+  console.log(enrollments);
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteEnrollment(id),
@@ -50,39 +58,14 @@ const EnrollmentsAdmin: React.FC = () => {
 
   return (
     <>
-      <h1 className="main-h">Manage Enrollments</h1>
-      <div className="list">
-        <h2>All Enrollments</h2>
-        {isLoading && <FullPageLoader />}
-        <hr />
-        <div className="comp-list">
-          <div className="comp-list">
-            {enrollments.length === 0
-              ? !isLoading && <p>No enrollments found.</p>
-              : enrollments.map((enroll: any) => (
-                  <div key={enroll._id} className="comp-card">
-                    <div className="info">
-                      <p>
-                        <strong>Student: </strong> {enroll.user?.name}
-                      </p>
-                      <p>
-                        <strong>Course: </strong> {enroll.course?.title}
-                      </p>
-                      <p>
-                        <strong>Teacher: </strong> {enroll.course?.teacher}
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => handleDelete(enroll._id)}
-                      className="delete-btn"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                ))}
-          </div>
-        </div>
-      </div>
+      <AppDataTable
+        title="All Enrollments"
+        data={enrollments}
+        columns={enrollmentColumns}
+        isLoading={isLoading}
+        onDelete={handleDelete}
+        actions
+      />
     </>
   );
 };

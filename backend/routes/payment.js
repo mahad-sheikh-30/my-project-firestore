@@ -56,47 +56,55 @@ const handleWebhook = async (req, res) => {
   if (event.type === "payment_intent.succeeded") {
     const session = event.data.object;
     const { userId, courseId } = session.metadata;
+    const paymentIntentId = session.id || session.payment_intent;
 
     try {
+      // ✅ Prevent duplicate processing
       const existingTxSnap = await transactionsRef
-        .where("paymentIntentId", "==", session.payment_intent || session.id)
+        .where("paymentIntentId", "==", paymentIntentId)
+        .limit(1)
         .get();
 
       if (!existingTxSnap.empty) {
-        console.log("Transaction already exists");
-      } else {
-        await transactionsRef.add({
+        console.log("Duplicate webhook received, skipping processing.");
+        return res.status(200).send();
+      }
+
+      // 🔹 Create transaction record
+      await transactionsRef.add({
+        userId,
+        courseId,
+        stripeSessionId: session.id,
+        paymentIntentId,
+        amount: session.amount / 100,
+        paymentMethod: session.payment_method_types?.[0] || "card",
+        createdAt: admin.firestore.Timestamp.now(),
+      });
+
+      // 🔹 Enroll user only if not already enrolled
+      const existingEnrollSnap = await enrollmentsRef
+        .where("userId", "==", userId)
+        .where("courseId", "==", courseId)
+        .limit(1)
+        .get();
+
+      console.log({ existingEnrollSnap });
+      if (existingEnrollSnap.empty) {
+        await enrollmentsRef.add({
           userId,
           courseId,
-          stripeSessionId: session.id,
-          paymentIntentId: session.payment_intent || session.id,
-          amount: session.amount_total / 100,
-          paymentMethod: session.payment_method_types?.[0] || "card",
-          createdAt: admin.firestore.Timestamp.now(),
+          enrolledAt: admin.firestore.Timestamp.now(),
         });
 
-        const existingEnrollSnap = await enrollmentsRef
-          .where("userId", "==", userId)
-          .where("courseId", "==", courseId)
-          .get();
+        await coursesRef
+          .doc(courseId)
+          .update({ studentsCount: admin.firestore.FieldValue.increment(1) });
 
-        if (existingEnrollSnap.empty) {
-          await enrollmentsRef.add({
-            userId,
-            courseId,
-            enrolledAt: admin.firestore.Timestamp.now(),
-          });
+        await usersRef.doc(userId).update({ role: "student" });
 
-          await coursesRef
-            .doc(courseId)
-            .update({ studentsCount: admin.firestore.FieldValue.increment(1) });
-
-          await usersRef.doc(userId).update({ role: "student" });
-
-          console.log(`Enrollment + Transaction saved for user: ${userId}`);
-        } else {
-          console.log("User already enrolled");
-        }
+        console.log(`✅ Enrollment + Transaction saved for user: ${userId}`);
+      } else {
+        console.log("⚠️ User already enrolled (skipped duplicate).");
       }
     } catch (err) {
       console.error("Webhook processing error:", err.message);

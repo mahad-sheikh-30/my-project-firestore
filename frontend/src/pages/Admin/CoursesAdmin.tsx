@@ -9,9 +9,18 @@ import {
   updateCourse,
   deleteCourse,
 } from "../../api/courseApi";
-import type { Course } from "../../components/CourseCard/CourseCard";
-import FullPageLoader from "../../components/FullPageLoader/FullPageLoader";
+
 import toast from "react-hot-toast";
+import AppDataTable from "../../components/AppDataTable/AppDataTable";
+import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner";
+
+const courseColumns = [
+  {
+    name: "Title",
+    selector: (row: any) => row.title,
+    sortable: true,
+  },
+];
 
 const CoursesAdmin: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -168,6 +177,7 @@ const CoursesAdmin: React.FC = () => {
       <div className="list">
         <h2>{isEditing ? "Edit Course" : "Add Course"}</h2>
         <hr />
+
         <form className="form-container" onSubmit={handleSubmit}>
           <div className="form-row">
             <label>
@@ -294,46 +304,26 @@ const CoursesAdmin: React.FC = () => {
           </div>
 
           <button type="submit" disabled={submitting}>
-            {submitting
-              ? "Processing..."
-              : isEditing
-              ? "Update Course"
-              : "Add Course"}
+            {submitting ? (
+              <LoadingSpinner />
+            ) : isEditing ? (
+              "Update Course"
+            ) : (
+              "Add Course"
+            )}
           </button>
         </form>
       </div>
 
-      <div className="list">
-        <h2>All Courses</h2>
-        <hr />
-        {loading ? (
-          <FullPageLoader />
-        ) : (
-          <div className="comp-list">
-            {courses.map((course: Course) => (
-              <div key={course.id} className="comp-card">
-                <div className="info">
-                  <h3>{course.title}</h3>
-                </div>
-                <div className="actions">
-                  <button
-                    className="edit-btn"
-                    onClick={() => handleEdit(course)}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    className="delete-btn"
-                    onClick={() => handleDelete(course.id)}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+      <AppDataTable
+        title="All Courses"
+        data={courses}
+        columns={courseColumns}
+        isLoading={loading}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        actions
+      />
     </div>
   );
 };

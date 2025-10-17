@@ -1,5 +1,6 @@
 import axios from "axios";
 import { auth } from "../firebase";
+import toast from "react-hot-toast";
 
 const API = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "http://localhost:8080/api",
@@ -29,11 +30,11 @@ API.interceptors.response.use(
       const { status } = error.response;
 
       if (status === 401) {
-        alert("Session expired. Please log in again.");
+        toast.error("Session expired. Please log in again.");
         localStorage.removeItem("token");
         window.location.href = "/signin";
       } else if (status === 403) {
-        alert("Access denied. Admins only.");
+        toast.error("Access denied. Admins only.");
       }
     }
     return Promise.reject(error);

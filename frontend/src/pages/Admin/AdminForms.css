@@ -1,11 +1,11 @@
 .add,
 .list {
-  margin: 20px;
+  margin: 10px;
   padding: 10px;
   border: 1px solid black;
   border-radius: 10px;
   max-width: 850px;
-  position: relative;
+  /* position: relative; */
 }
 
 .form-container {
@@ -89,38 +89,6 @@ button[type="submit"]:hover {
   margin: 2px 0;
 }
 
-.actions {
-  display: flex;
-  gap: 10px;
-}
-
-.edit-btn,
-.delete-btn {
-  padding: 6px 14px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background 0.2s ease;
-}
-
-.edit-btn {
-  background-color: #3498db;
-  color: white;
-}
-
-.edit-btn:hover {
-  background-color: #2980b9;
-}
-
-.delete-btn {
-  background-color: #e74c3c;
-  color: white;
-}
-
-.delete-btn:hover {
-  background-color: #c0392b;
-}
 .preview img {
   margin-top: 10px;
   width: 150px;

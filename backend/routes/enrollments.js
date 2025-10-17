@@ -72,15 +72,16 @@ router.get("/my", auth, async (req, res) => {
 router.get("/", auth, adminMiddleware, async (req, res) => {
   try {
     const snapshot = await enrollmentsRef.get();
-    const enrollments = [];
 
-    for (const doc of snapshot.docs) {
+    const enrollmentPromises = snapshot.docs.map(async (doc) => {
       const data = doc.data();
 
-      const userSnap = await usersRef.doc(data.userId).get();
-      const user = userSnap.exists ? userSnap.data() : {};
+      const [userSnap, courseSnap] = await Promise.all([
+        usersRef.doc(data.userId).get(),
+        coursesRef.doc(data.courseId).get(),
+      ]);
 
-      const courseSnap = await coursesRef.doc(data.courseId).get();
+      const user = userSnap.exists ? userSnap.data() : {};
       const course = courseSnap.exists ? courseSnap.data() : {};
 
       let teacherName = "N/A";
@@ -89,16 +90,14 @@ router.get("/", auth, adminMiddleware, async (req, res) => {
         teacherName = teacherSnap.exists ? teacherSnap.data().name : "N/A";
       }
 
-      enrollments.push({
-        _id: doc.id,
+      return {
+        id: doc.id,
         user: { name: user.name || "N/A" },
-        course: {
-          title: course.title || "Untitled",
-          teacher: teacherName,
-        },
-      });
-    }
+        course: { title: course.title || "Untitled", teacher: teacherName },
+      };
+    });
 
+    const enrollments = await Promise.all(enrollmentPromises);
     res.json(enrollments);
   } catch (err) {
     console.error("Fetch enrollments error:", err);

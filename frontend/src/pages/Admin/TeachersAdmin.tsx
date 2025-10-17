@@ -7,8 +7,16 @@ import {
   updateTeacher,
   deleteTeacher,
 } from "../../api/teacherApi";
-import FullPageLoader from "../../components/FullPageLoader/FullPageLoader";
+
 import toast from "react-hot-toast";
+import AppDataTable from "../../components/AppDataTable/AppDataTable";
+import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner";
+
+const teacherColumns = [
+  { name: "Name", selector: (row: any) => row.name, sortable: true },
+  { name: "Role", selector: (row: any) => row.role, sortable: true },
+  { name: "Rating", selector: (row: any) => row.rating, sortable: true },
+];
 
 const TeachersAdmin: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -189,46 +197,26 @@ const TeachersAdmin: React.FC = () => {
             )}
           </div>
           <button type="submit" disabled={submitting}>
-            {submitting
-              ? "Processing..."
-              : isEditing
-              ? "Update Teacher"
-              : "Add Teacher"}
+            {submitting ? (
+              <LoadingSpinner />
+            ) : isEditing ? (
+              "Update Teacher"
+            ) : (
+              "Add Teacher"
+            )}
           </button>
         </form>
       </div>
 
-      <div className="list">
-        <h2>All Teachers</h2>
-        <hr />
-        {loading ? (
-          <FullPageLoader />
-        ) : (
-          <div className="comp-list">
-            {teachers.map((teacher: any) => (
-              <div key={teacher.id} className="comp-card">
-                <div className="info">
-                  <h3>{teacher.name}</h3>
-                </div>
-                <div className="actions">
-                  <button
-                    className="edit-btn"
-                    onClick={() => handleEdit(teacher)}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    className="delete-btn"
-                    onClick={() => handleDelete(teacher.id)}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+      <AppDataTable
+        title="All Teachers"
+        data={teachers}
+        columns={teacherColumns}
+        isLoading={loading}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        actions
+      />
     </>
   );
 };

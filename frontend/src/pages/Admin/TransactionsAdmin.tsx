@@ -1,8 +1,33 @@
-import React, { useEffect, useState } from "react";
-import TransactionsTable from "../../components/TransactionsTable/TransactionsTable";
 import { getAllTransactions } from "../../api/transactionApi";
 import { useQuery } from "@tanstack/react-query";
-import FullPageLoader from "../../components/FullPageLoader/FullPageLoader";
+
+import AppDataTable from "../../components/AppDataTable/AppDataTable";
+
+const columns = [
+  {
+    name: "Course",
+    selector: (row: any) => row.courseId?.title || "N/A",
+    sortable: true,
+  },
+  {
+    name: "Amount",
+    selector: (row: any) => `$${row.amount?.toFixed(2) || "0.00"}`,
+    sortable: true,
+  },
+  {
+    name: "Date",
+    selector: (row: any) => new Date(row.createdAt).toLocaleDateString(),
+    sortable: true,
+  },
+  {
+    name: "Time",
+    selector: (row: any) =>
+      new Date(row.createdAt).toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+  },
+];
 
 const AdminTransactions: React.FC = () => {
   const { data: transactions = [], isLoading } = useQuery({
@@ -12,9 +37,13 @@ const AdminTransactions: React.FC = () => {
 
   return (
     <div className="admin-trans">
-      {isLoading && <FullPageLoader />}
-      <h2 style={{ textAlign: "center" }}>All Transactions</h2>
-      <TransactionsTable transactions={transactions} isAdmin />
+      <AppDataTable
+        title={"All Transactions"}
+        isLoading={isLoading}
+        data={transactions}
+        columns={columns}
+        width={"100%"}
+      />
     </div>
   );
 };
