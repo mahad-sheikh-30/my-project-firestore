@@ -20,8 +20,8 @@ router.post("/firebase-login", async (req, res) => {
       });
     }
 
-    const userEmail = email || `${uid}@facebook.temp`;
     const userName = name || decodedToken.name || "Facebook User";
+    const userEmail = email || `${userName.trim()}@facebook.temp`;
 
     const emailSnapshot = await db
       .collection("users")
@@ -46,7 +46,7 @@ router.post("/firebase-login", async (req, res) => {
       email: userEmail,
       name: userName,
       role,
-      provider: providerId || "facebook.com",
+      provider: providerId,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     };
 

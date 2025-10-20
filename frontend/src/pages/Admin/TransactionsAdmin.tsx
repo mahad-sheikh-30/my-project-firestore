@@ -5,6 +5,17 @@ import AppDataTable from "../../components/AppDataTable/AppDataTable";
 
 const columns = [
   {
+    name: "User",
+    cell: (row: any) => (
+      <div>
+        {row.userId?.name || "N/A"} <br />
+        <small>{row.userId?.email || "N/A"}</small>
+      </div>
+    ),
+    sortable: true,
+    width: "250px",
+  },
+  {
     name: "Course",
     selector: (row: any) => row.courseId?.title || "N/A",
     sortable: true,

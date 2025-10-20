@@ -51,7 +51,6 @@ const Contact: React.FC = () => {
 
   const [state, dispatch] = useReducer(formReducer, initialState);
 
-  // 🧩 Define the mutation
   const contactMutation = useMutation({
     mutationFn: async () => {
       return await API.post("/contact", {

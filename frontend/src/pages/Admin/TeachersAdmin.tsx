@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
 import "./AdminForms.css";
 import {
   getAllTeachers,
@@ -12,6 +13,14 @@ import toast from "react-hot-toast";
 import AppDataTable from "../../components/AppDataTable/AppDataTable";
 import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner";
 
+interface TeacherFormInputs {
+  id?: string;
+  name: string;
+  role: string;
+  rating: number;
+  image: FileList;
+}
+
 const teacherColumns = [
   { name: "Name", selector: (row: any) => row.name, sortable: true },
   { name: "Role", selector: (row: any) => row.role, sortable: true },
@@ -19,17 +28,22 @@ const teacherColumns = [
 ];
 
 const TeachersAdmin: React.FC = () => {
-  const [formData, setFormData] = useState({
-    id: "",
-    name: "",
-    role: "",
-    rating: 0,
-    image: null as File | null,
-  });
-
   const [isEditing, setIsEditing] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<TeacherFormInputs>({
+    defaultValues: {
+      name: "",
+      role: "",
+      rating: 0,
+    },
+  });
 
   const queryClient = useQueryClient();
 
@@ -69,7 +83,10 @@ const TeachersAdmin: React.FC = () => {
   });
 
   const handleEdit = (teacher: any) => {
-    setFormData(teacher);
+    setValue("id", teacher.id);
+    setValue("name", teacher.name);
+    setValue("role", teacher.role);
+    setValue("rating", teacher.rating);
     setImagePreview(teacher.image || null);
     setIsEditing(true);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -85,42 +102,29 @@ const TeachersAdmin: React.FC = () => {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (submitting) return;
-    setSubmitting(true);
+  const onSubmit = async (data: TeacherFormInputs) => {
     try {
       const fileData = new FormData();
-      fileData.append("name", formData.name);
-      fileData.append("role", formData.role);
-      fileData.append("rating", String(formData.rating));
-      if (formData.image) {
-        fileData.append("image", formData.image);
+      fileData.append("name", data.name);
+      fileData.append("role", data.role);
+      fileData.append("rating", String(data.rating));
+
+      const imageFile = data.image?.[0];
+      if (imageFile) {
+        fileData.append("image", imageFile);
       }
 
-      if (isEditing) {
-        await updateMutation.mutateAsync({ id: formData.id, form: fileData });
+      if (isEditing && data.id) {
+        await updateMutation.mutateAsync({ id: data.id, form: fileData });
       } else {
         await createMutation.mutateAsync(fileData);
       }
 
-      setFormData({
-        id: "",
-        image: null as File | null,
-        name: "",
-        role: "",
-        rating: 0,
-      });
+      reset();
       setImagePreview(null);
       setIsEditing(false);
     } catch (err) {
-      console.error("Error adding teacher:", err);
-    } finally {
-      setSubmitting(false);
+      console.error("Error adding/updating teacher:", err);
     }
   };
 
@@ -131,64 +135,74 @@ const TeachersAdmin: React.FC = () => {
       <div className="list">
         <h2>{isEditing ? "Update " : "Add "}Teacher</h2>
         <hr />
-        <form className="form-container" onSubmit={handleSubmit}>
+        <form className="form-container" onSubmit={handleSubmit(onSubmit)}>
           <div className="form-row">
             <label>
               Instructor Name
               <input
                 type="text"
-                name="name"
                 placeholder="Instructor Name"
-                value={formData.name}
-                onChange={handleChange}
-                required
+                {...register("name", {
+                  required: "Instructor Name is required",
+                })}
               />
             </label>
+            {errors.name && (
+              <p className="error-message">{errors.name.message}</p>
+            )}
 
             <label>
               Role
               <input
                 type="text"
-                name="role"
                 placeholder="Role"
-                value={formData.role}
-                onChange={handleChange}
-                required
+                {...register("role", { required: "Role is required" })}
               />
             </label>
+            {errors.role && (
+              <p className="error-message">{errors.role.message}</p>
+            )}
           </div>
+
           <div className="form-row">
             <label>
               Rating
               <input
                 type="number"
-                name="rating"
                 placeholder="Rating"
-                value={formData.rating || ""}
-                onChange={handleChange}
-                required
-                min="0"
-                max="5"
+                {...register("rating", {
+                  required: "Rating is required",
+                  min: { value: 0, message: "Min rating is 0" },
+                  max: { value: 5, message: "Max rating is 5" },
+                  valueAsNumber: true,
+                })}
                 step="0.1"
               />
             </label>
+            {errors.rating && (
+              <p className="error-message">{errors.rating.message}</p>
+            )}
+
             <label>
               Image
               <input
                 type="file"
-                name="image"
-                onChange={(e) => {
-                  const file = e.target.files?.[0] || null;
-                  setFormData({
-                    ...formData,
-                    image: file,
-                  });
-                  if (file) {
-                    setImagePreview(URL.createObjectURL(file));
-                  }
-                }}
+                {...register("image", {
+                  required: isEditing ? false : "Image is required",
+                  onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+                    const file = e.target.files?.[0] || null;
+                    if (file) {
+                      setImagePreview(URL.createObjectURL(file));
+                    } else if (!isEditing) {
+                      setImagePreview(null);
+                    }
+                  },
+                })}
               />
             </label>
+            {errors.image && (
+              <p className="error-message">{errors.image.message}</p>
+            )}
 
             {imagePreview && (
               <div className="preview">
@@ -196,8 +210,9 @@ const TeachersAdmin: React.FC = () => {
               </div>
             )}
           </div>
-          <button type="submit" disabled={submitting}>
-            {submitting ? (
+
+          <button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? (
               <LoadingSpinner />
             ) : isEditing ? (
               "Update Teacher"
@@ -207,6 +222,8 @@ const TeachersAdmin: React.FC = () => {
           </button>
         </form>
       </div>
+
+      {deleteMutation.isPending && <LoadingSpinner />}
 
       <AppDataTable
         title="All Teachers"

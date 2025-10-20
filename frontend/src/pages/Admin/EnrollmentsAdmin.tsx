@@ -7,6 +7,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 import toast from "react-hot-toast";
 import AppDataTable from "../../components/AppDataTable/AppDataTable";
+import FullPageLoader from "../../components/FullPageLoader/FullPageLoader";
 
 const enrollmentColumns = [
   { name: "Student", selector: (row: any) => row.user?.name, sortable: true },
@@ -57,7 +58,8 @@ const EnrollmentsAdmin: React.FC = () => {
   };
 
   return (
-    <>
+    <div className="enroll-admin">
+      {deleteMutation.isPending && <FullPageLoader />}
       <AppDataTable
         title="All Enrollments"
         data={enrollments}
@@ -66,7 +68,7 @@ const EnrollmentsAdmin: React.FC = () => {
         onDelete={handleDelete}
         actions
       />
-    </>
+    </div>
   );
 };
 

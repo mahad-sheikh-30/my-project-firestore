@@ -10,6 +10,7 @@ import SignUp from "../pages/SignUp/SignUp";
 import Transactions from "../pages/Transactions/Transactions";
 import PaymentPage from "../pages/Payment/Payment";
 import Success from "../pages/Success/Success";
+import PageNotFound from "../pages/PageNotFound/PageNotFound";
 
 const MainRoutes = (
   <>
@@ -24,6 +25,7 @@ const MainRoutes = (
       <Route path="/transactions" element={<Transactions />} />
       <Route path="/checkout" element={<PaymentPage />} />
       <Route path="/success" element={<Success />} />
+      <Route path="*" element={<PageNotFound />} />
     </Route>
   </>
 );

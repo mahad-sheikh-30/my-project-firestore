@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="open-book.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>React Etech.</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="open-book.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>React Etech.</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+import { BrowserRouter, Routes } from "react-router-dom";
+import MainRoutes from "./routes/MainRoutes";
+import AdminRoutes from "./routes/AdminRoutes";
+import { Toaster } from "react-hot-toast";
+import "./index.css";
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Toaster position="top-center" reverseOrder={false} />
+      <Routes>
+        {MainRoutes}
+        {AdminRoutes}
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+export default App;
+import { Route } from "react-router-dom";
+import MainLayout from "../layouts/MainLayout";
+import Home from "../pages/Home/Home";
+import Courses from "../pages/Courses/Courses";
+import TeacherPage from "../pages/TeacherPage/TeacherPage";
+import About from "../pages/About/About";
+import Contact from "../pages/Contact/Contact";
+import SignIn from "../pages/SignIn/SignIn";
+import SignUp from "../pages/SignUp/SignUp";
+import Transactions from "../pages/Transactions/Transactions";
+import PaymentPage from "../pages/Payment/Payment";
+import Success from "../pages/Success/Success";
+import PageNotFound from "../pages/PageNotFound/PageNotFound";
+
+const MainRoutes = (
+  <>
+    <Route element={<MainLayout />}>
+      <Route path="/" element={<Home />} />
+      <Route path="/courses" element={<Courses />} />
+      <Route path="/teachers" element={<TeacherPage />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/contact" element={<Contact />} />
+      <Route path="/signin" element={<SignIn />} />
+      <Route path="/signup" element={<SignUp />} />
+      <Route path="/transactions" element={<Transactions />} />
+      <Route path="/checkout" element={<PaymentPage />} />
+      <Route path="/success" element={<Success />} />
+      <Route path="*" element={<PageNotFound />} />
+    </Route>
+  </>
+);
+
+export default MainRoutes;
+import { Route } from "react-router-dom";
+import ProtectedRoute from "../components/ProtectedRoute.tsx/ProtectedRoute";
+import AdminLayout from "../layouts/AdminLayout";
+import AdminPanel from "../pages/Admin/AdminPanel";
+import CoursesAdmin from "../pages/Admin/CoursesAdmin";
+import TeachersAdmin from "../pages/Admin/TeachersAdmin";
+import EnrollmentsAdmin from "../pages/Admin/EnrollmentsAdmin";
+import AdminTransactions from "../pages/Admin/TransactionsAdmin";
+
+const AdminRoutes = (
+  <>
+    <Route
+      path="/admin"
+      element={
+        <ProtectedRoute allowedRoles={["admin"]}>
+          <AdminLayout />
+        </ProtectedRoute>
+      }
+    >
+      <Route index element={<AdminPanel />} />
+      <Route path="courses" element={<CoursesAdmin />} />
+      <Route path="teachers" element={<TeachersAdmin />} />
+      <Route path="enrollments" element={<EnrollmentsAdmin />} />
+      <Route path="transactions" element={<AdminTransactions />} />
+    </Route>
+  </>
+);
+
+export default AdminRoutes;
+import { initializeApp } from "firebase/app";
+import { getAuth ,GoogleAuthProvider} from "firebase/auth";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAO-Aoy7JOhyBU8ZVmTJhi6gzZ7TeIbJDk",
+  authDomain: "etech-firebase.firebaseapp.com",
+  projectId: "etech-firebase",
+  storageBucket: "etech-firebase.firebasestorage.app", 
+  messagingSenderId: "972625976589",
+  appId: "1:972625976589:web:dcf25bb0a9fad4f4756444",
+  measurementId: "G-12ZPDF1WFY"
+};
+
+
+const app = initializeApp(firebaseConfig);
+
+export const googleProvider = new GoogleAuthProvider();
+export const auth = getAuth(app);
+
+import React from "react";
+import { Navigate } from "react-router-dom";
+import { useUser } from "../../context/UserContext";
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+  allowedRoles: string[];
+}
+
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+  children,
+  allowedRoles,
+}) => {
+  const { user } = useUser();
+  const token = user?.token;
+  const role = user?.role;
+
+  if (!token) {
+    return <Navigate to="/signin" replace />;
+  }
+
+  if (!allowedRoles.includes(role || "")) {
+    return <Navigate to="/" />;
+  }
+
+  return <>{children}</>;
+};
+
+export default ProtectedRoute;
+
+
+import React from "react";
+import { Navigate } from "react-router-dom";
+import { useUser } from "../../context/UserContext";
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+  allowedRoles: string[];
+}
+
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+  children,
+  allowedRoles,
+}) => {
+  const { user } = useUser();
+  const token = user?.token;
+  const role = user?.role;
+
+  if (!token) {
+    return <Navigate to="/signin" replace />;
+  }
+
+  if (!allowedRoles.includes(role || "")) {
+    return <Navigate to="/" />;
+  }
+
+  return <>{children}</>;
+};
+
+export default ProtectedRoute;
+import React from "react";
+import { Outlet } from "react-router-dom";
+
+import AdminSidebar from "../components/AdminSidebar/AdminSidebar";
+
+const AdminLayout: React.FC = () => {
+  return (
+    <div className="admin-layout">
+      <AdminSidebar />
+      <div className="admin-content">
+        <Outlet />
+      </div>
+    </div>
+  );
+};
+
+export default AdminLayout;
+
+import React from "react";
+import Navbar from "../components/Navbar/Navbar";
+import Footer from "../components/Footer/Footer";
+import { Outlet } from "react-router-dom";
+
+const MainLayout: React.FC = () => {
+  return (
+    <div className="main-layout">
+      <Navbar />
+      <main className="main-content">
+        <Outlet />
+      </main>
+      <Footer />
+    </div>
+  );
+};
+
+export default MainLayout;
+import React from "react";
+import "./Home.css";
+
+import Hero from "./sections/Hero/Hero";
+import Search from "./sections/Search/Search";
+import Popular from "./sections/Popular/Popular";
+import Teachers from "./sections/Teachers/Teachers";
+import StudReviews from "./sections/StudReviews/StudReviews";
+const Home: React.FC = () => {
+  return (
+    <div>
+      <Hero />
+      <Search />
+      <Popular />
+      <Teachers />
+      <StudReviews />
+    </div>
+  );
+};
+
+export default Home;
+import React, { useState, useEffect } from "react";
+import "./Hero.css";
+import axios from "axios";
+import badge from "../../../../assets/badge.png";
+import girl1 from "../../../../assets/girl-1.png";
+import courseSvg from "../../../../assets/course.svg";
+import userCircle from "../../../../assets/user-circle.png";
+import magicleap from "../../../../assets/magicleap.png";
+import microsoft from "../../../../assets/microsoft.png";
+import codecov from "../../../../assets/codecov.png";
+import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+
+const Hero: React.FC = () => {
+  return (
+    <>
+      <section className="hero-sec">
+        <div className="hero">
+          <div className="hero-left">
+            <h1 className="hero-title">
+              Develop your skills in a new and unique way
+            </h1>
+            <p className="hero-p">
+              Explore a transformative approach to skill development on our
+              online learning platform. Discover engaging lessons and elevate
+              your expertise.
+            </p>
+            <div className="hero-btns">
+              <Link to="/courses">
+                <button className="enroll-btn">Explore Now</button>
+              </Link>
+              <div className="what-new">
+                <img src={badge} alt="Badge" />
+                <Link to="/about">What's New?</Link>
+              </div>
+            </div>
+          </div>
+          <div className="hero-right">
+            <div className="circle"></div>
+            <img className="girl1-img" src={girl1} alt="Girl" />
+            <div className="info-box box1">
+              <img src={courseSvg} alt="Course" />
+              <p>
+                <span className="count">50+ </span> <br />
+                Online Courses
+              </p>
+            </div>
+            <div className="info-box box2">
+              <p>
+                <span className="count">30K+ </span> <br />
+                Online Students
+              </p>
+              <div className="box2-icons">
+                <img src={userCircle} alt="User" />
+                <img src={userCircle} alt="User" />
+                <img src={userCircle} alt="User" />
+                <img src={userCircle} alt="User" />
+              </div>
+            </div>
+            <div className="info-box box3">
+              <img src={userCircle} alt="User" />
+              <div>
+                <h3>Asad Ali</h3>
+                <p>Top Instructor</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="hero-bottom">
+          <div className="scroll-container">
+            <div className="scroll-content">
+              <div className="duolingo">
+                <p className="duolingo">duolingo</p>
+              </div>
+              <div className="magic-leap flexx">
+                <img src={magicleap} alt="Magic Leap" />
+                <p>magic leap</p>
+              </div>
+              <div className="microsoft flexx">
+                <img src={microsoft} alt="Microsoft" />
+                <p>Microsoft</p>
+              </div>
+              <div className="codecov flexx">
+                <img src={codecov} alt="Codecov" />
+                <p>Codecov</p>
+              </div>
+              <div className="user-testing">
+                <p>
+                  <span className="user">User</span>Testing
+                </p>
+              </div>
+              {/* duplicate content for seamless loop */}
+              <div className="duolingo">
+                <p className="duolingo">duolingo</p>
+              </div>
+              <div className="magic-leap flexx">
+                <img src={magicleap} alt="Magic Leap" />
+                <p>magic leap</p>
+              </div>
+              <div className="microsoft flexx">
+                <img src={microsoft} alt="Microsoft" />
+                <p>Microsoft</p>
+              </div>
+              <div className="codecov flexx">
+                <img src={codecov} alt="Codecov" />
+                <p>Codecov</p>
+              </div>
+              <div className="user-testing">
+                <p>
+                  <span className="user">User</span>Testing
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* <div className="hero-bottom">
+          <div className="duolingo">
+            <p className="duolingo">duolingo</p>
+          </div>
+          <div className="magic-leap flexx">
+            <img src={magicleap} alt="Magic Leap" />
+            <p>magic leap</p>
+          </div>
+          <div className="microsoft flexx">
+            <img src={microsoft} alt="Microsoft" />
+            <p>Microsoft</p>
+          </div>
+          <div className="codecov flexx">
+            <img src={codecov} alt="Codecov" />
+            <p>Codecov</p>
+          </div>
+          <div className="user-testing">
+            <p>
+              <span className="user">User</span>Testing
+            </p>
+          </div>
+        </div> */}
+      </section>
+    </>
+  );
+};
+
+export default Hero;
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import searchIcon from "../../../../assets/search.png";
+import p1 from "../../../../assets/p1.jpg";
+import p2 from "../../../../assets/p2.jpg";
+import p3 from "../../../../assets/p3.jpg";
+import p4 from "../../../../assets/p4.jpg";
+import graduation from "../../../../assets/graduation.png";
+import onlineClass from "../../../../assets/online-class.png";
+import userCircle from "../../../../assets/user-circle.png";
+import courseSvg from "../../../../assets/course.svg";
+import "./Search.css";
+
+const benefits = [
+  {
+    img: graduation,
+    title: "Online Degrees",
+    desc: "Earn accredited degrees from the comfort of your home, opening doors to a world of possibilities.",
+  },
+  {
+    img: onlineClass,
+    title: "Short Courses",
+    desc: "Enhance your skills with our concise and focused short courses, designed for quick and effective learning.",
+  },
+  {
+    img: userCircle,
+    title: "Training From Experts",
+    desc: "Increase yourself knowledge with trusted experts guiding you through hands-on experien",
+  },
+  {
+    img: courseSvg,
+    title: "1.5k+ Video Courses",
+    desc: "Dive into our vast library of over 1.5k video courses covering every subject area, offering a visual learning experience.",
+  },
+];
+
+const Search: React.FC = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate();
+  const handleSearch = () => {
+    if (searchTerm.trim()) {
+      navigate(`/courses?search=${encodeURIComponent(searchTerm)}`);
+    }
+  };
+  return (
+    <section className="search-sec" id="course">
+      <div className="search">
+        <h1>Search Courses</h1>
+        <div className="search-box">
+          <img src={searchIcon} alt="Search" />
+          <input
+            type="text"
+            placeholder="Search for over 50+ courses"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleSearch();
+              }
+            }}
+          />
+          <button className="button search-btn" onClick={handleSearch}>
+            Search
+          </button>
+        </div>
+      </div>
+
+      <div className="below-search">
+        <div className="search-pic">
+          <div className="pics">
+            <img src={p1} alt="pic1" className=" top-left" />
+            <img src={p2} alt="pic2" className=" top-right" />
+            <img src={p4} alt="pic3" className=" bottom-left" />
+            <img src={p3} alt="pic4" className=" bottom-right" />
+          </div>
+        </div>
+        <div className="search-benefits">
+          <div className="benefits-head">
+            <h1>
+              <span className="benefits-title">Benefits</span> From Our Online
+              <br />
+              Learning
+            </h1>
+          </div>
+          {benefits.map((b, i) => (
+            <div className="benefits" key={i}>
+              <img src={b.img} alt={b.title} />
+              <div>
+                <h3>{b.title}</h3>
+                <p>{b.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default Search;
+import "./StudReviews.css";
+import StudRevCard from "../../../../components/StudRevCard/StudRevCard";
+import type { StudRev } from "../../../../components/StudRevCard/StudRevCard";
+import boyImg from "../../../../assets/bb1.jpeg";
+import boyImg2 from "../../../../assets/bb2.jpg";
+import girlImg from "../../../../assets/gg1.png";
+
+const studentReviews: StudRev[] = [
+  {
+    id: "1",
+    image: boyImg,
+    name: "Haris Butt",
+    role: "Student",
+    rating: 4.6,
+    review:
+      "Investing in courses on this e-learning platform was a game-changer for me — absolutely transformative experience.",
+  },
+  {
+    id: "2",
+    image: girlImg,
+    name: "Faiza Awan",
+    role: "UI/UX Designer",
+    rating: 4.8,
+    review:
+      "Highly recommended! The personalized feedback and applications in the course have elevated my understanding.",
+  },
+  {
+    id: "3",
+    image: boyImg2,
+    name: "Mahad Sheikh",
+    role: "Data Analyst",
+    rating: 4.9,
+    review:
+      "Exceptional courses. The practical insights and flexible learning structure have been instrumental in my professional growth.",
+  },
+];
+
+const StudReviews = () => {
+  return (
+    <div className="stud-rev-section">
+      <div className="stud-head">
+        <h1>Student’s Testimonials</h1>
+        <p>
+          Hear what our students have to say about their enriching e-learning
+          experience. Real stories, real growth. Discover firsthand the impact
+          our courses have had on their lives. Join thousands of learners who
+          transformed their careers with us.
+        </p>
+      </div>
+      <div className="stud-rev-cards">
+        {studentReviews.map((studRev) => (
+          <StudRevCard key={studRev.id} studRev={studRev} />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default StudReviews;
+import teacherImg from "../../../../assets/teacher.png";
+import "./Teachers.css";
+import { Link } from "react-router-dom";
+const perks = [
+  "Global Impact",
+  "Flexible Schedule",
+  "Innovative Teaching Tools",
+  "Recognition And Reputation",
+  "Creative Freedom",
+  "Monetize Your Expertise",
+  "Professional Development",
+  "Networking Opportunities",
+];
+
+const Teachers = () => (
+  <section className="teacher" id="teacher">
+    <div className="teach-content">
+      <div className="teach-up">
+        <h1>
+          If You Are A Certified Teacher Then
+          <span className="instruct-title"> Become An Instructor</span>
+        </h1>
+        <p>
+          Unlock the opportunity to inspire and educate by joining our team of
+          instructors. If you’re a certified teacher, elevate your impact and
+          share your expertise with learners worldwide.
+        </p>
+      </div>
+      <h1>Enjoy Many Perks</h1>
+      <ul className="grid-list">
+        {perks.map((perk, i) => (
+          <li key={i}>{perk}</li>
+        ))}
+      </ul>
+      <Link to="/teachers" className="exp-teach button">
+        Explore Teachers
+      </Link>
+    </div>
+    <div className="teacher-pic">
+      <div className="teach-div">
+        <img src={teacherImg} alt="Teacher" className="teach-pic" />
+      </div>
+    </div>
+  </section>
+);
+
+export default Teachers;
+import React, { useEffect, useState } from "react";
+import CourseCard from "../../../../components/CourseCard/CourseCard";
+import type { Course } from "../../../../components/CourseCard/CourseCard";
+import "./Popular.css";
+import { getAllCourses } from "../../../../api/courseApi";
+import { getEnrolledCourses } from "../../../../api/enrollmentApi";
+import { useQuery } from "@tanstack/react-query";
+import { useUser } from "../../../../context/UserContext";
+
+const Popular: React.FC = () => {
+  const { user } = useUser();
+  const { data: allCourses = [], isLoading } = useQuery({
+    queryKey: ["courses"],
+    queryFn: getAllCourses,
+  });
+  const { data: enrolledCourses = [] } = useQuery({
+    queryKey: ["enrolled"],
+    queryFn: getEnrolledCourses,
+    enabled: !!user?.token,
+  });
+
+  const popularCourses = allCourses.filter((course: Course) => course.popular);
+
+  return (
+    <section className="popular" id="offers">
+      <div className="popular-head">
+        <h1>Our Popular Courses</h1>
+        <p>
+          Discover our most sought-after courses, carefully curated to meet the
+          demands of modern learners. Dive into engaging lessons crafted for
+          success in every stage of your educational journey.
+        </p>
+      </div>
+      {isLoading ? (
+        <h2>Loading popular courses...</h2>
+      ) : (
+        <div className="popular-cards">
+          {popularCourses.map((course: Course) => (
+            <CourseCard
+              key={course.id}
+              course={course}
+              enrolledCourses={enrolledCourses}
+            />
+          ))}
+        </div>
+      )}
+    </section>
+  );
+};
+
+export default Popular;
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import "./Navbar.css";
+import crossImg from "../../assets/closee.png";
+import { useUser } from "../../context/UserContext";
+import userIcon from "../../assets/user.png";
+import toast from "react-hot-toast";
+
+const Navbar: React.FC = () => {
+  const navigate = useNavigate();
+  const { user, logout } = useUser();
+
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isUserOpen, setIsUserOpen] = useState(false);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest(".user-img") && !target.closest(".user-info")) {
+        setIsUserOpen(false);
+      }
+    };
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, []);
+
+  const handleSignOut = () => {
+    logout();
+    toast.success("Signed out successfully!");
+    navigate("/signin");
+    setIsMenuOpen(false);
+  };
+
+  const name = user?.name;
+  const email = user?.email;
+  const role = user?.role;
+
+  return (
+    <>
+      <nav className="navbar">
+        <Link to="/" className="logo">
+          <h1>Etech.</h1>
+        </Link>
+
+        <div className="nav-items" aria-label="Primary">
+          <ul className="nav-links">
+            <li>
+              <Link to="/courses">Courses</Link>
+            </li>
+            <li>
+              <Link to="/teachers">Teachers</Link>
+            </li>
+            <li>
+              <Link to="/about">About</Link>
+            </li>
+            <li>
+              <Link to="/contact">Contact</Link>
+            </li>
+          </ul>
+        </div>
+
+        <div className="sign-trial">
+          {!user ? (
+            <Link to="/signin">
+              <button className="sign-in-btn button">Sign In</button>
+            </Link>
+          ) : (
+            <>
+              <div
+                className="user-img"
+                onClick={() => setIsUserOpen(!isUserOpen)}
+              >
+                <img src={userIcon} alt="" />
+
+                {isUserOpen && (
+                  <div className="user-info">
+                    <h4>{name?.toUpperCase()}</h4>
+                    <hr />
+                    <p>{email}</p>
+                    <hr />
+                    <h4>{role?.toUpperCase()}</h4>
+                    <hr />
+
+                    {role === "admin" && (
+                      <>
+                        <button
+                          onClick={() => {
+                            navigate("/admin");
+                            setIsUserOpen(false);
+                          }}
+                          className="button"
+                        >
+                          Admin Panel
+                        </button>
+                        <hr />
+                      </>
+                    )}
+                    {role === "student" && (
+                      <>
+                        <Link to="/transactions">My Transactions</Link>
+                        <hr />
+                      </>
+                    )}
+                    <button onClick={handleSignOut} className=" button">
+                      Sign Out
+                    </button>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+
+        <button
+          className="menu-toggle"
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          aria-expanded={isMenuOpen}
+          aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+        >
+          <span className="bar"></span>
+          <span className="bar"></span>
+          <span className="bar"></span>
+        </button>
+      </nav>
+      <div
+        className={`mobile-menu ${isMenuOpen ? "open" : ""}`}
+        id="mobileMenu"
+      >
+        <div className="mobile-header">
+          <Link
+            to="/"
+            className="logo mobile-logo"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            <h1>Etech.</h1>
+          </Link>
+
+          <button
+            className="close-icon"
+            onClick={() => setIsMenuOpen(false)}
+            aria-label="Close menu"
+          >
+            <img src={crossImg} alt="close" />
+          </button>
+        </div>
+        <hr />
+
+        <ul>
+          <li>
+            <Link to="/courses" onClick={() => setIsMenuOpen(false)}>
+              Courses
+            </Link>
+          </li>
+          <li>
+            <Link to="/teachers" onClick={() => setIsMenuOpen(false)}>
+              Teachers
+            </Link>
+          </li>
+          <li>
+            <Link to="/about" onClick={() => setIsMenuOpen(false)}>
+              About
+            </Link>
+          </li>
+          <li>
+            <Link to="/contact" onClick={() => setIsMenuOpen(false)}>
+              Contact
+            </Link>
+          </li>
+        </ul>
+        {user ? (
+          <div className="mobile-user-card">
+            <div className="mobile-user-header">
+              <h3>{name?.toUpperCase()}</h3>
+              <p>{email}</p>
+              <span className="user-role">{role?.toUpperCase()}</span>
+            </div>
+
+            <div className="mobile-user-actions">
+              {role === "admin" && (
+                <button
+                  onClick={() => {
+                    navigate("/admin");
+                    setIsMenuOpen(false);
+                  }}
+                  className="button admin-btn"
+                >
+                  Admin Panel
+                </button>
+              )}
+              {role === "student" && (
+                <Link
+                  to="/transactions"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="button"
+                >
+                  My Transactions
+                </Link>
+              )}
+            </div>
+          </div>
+        ) : (
+          <></>
+        )}
+
+        <div className="mobile-buttons">
+          {!user ? (
+            <Link to="/signin" onClick={() => setIsMenuOpen(false)}>
+              <button className="sign-in-btn button">Sign In</button>
+            </Link>
+          ) : (
+            <button onClick={handleSignOut} className="sign-in-btn button">
+              Sign Out
+            </button>
+          )}
+
+          <Link to="/" onClick={() => setIsMenuOpen(false)}>
+            <button className="home-btn button">Go Back Home</button>
+          </Link>
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default Navbar;

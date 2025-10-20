@@ -58,8 +58,8 @@ function AppDataTable<T extends { id?: string | number }>({
           progressPending={isLoading}
           progressComponent={<LoadingSpinner />}
           pagination
-          paginationPerPage={5}
-          paginationRowsPerPageOptions={[5, 10, 15]}
+          paginationPerPage={6}
+          paginationRowsPerPageOptions={[6, 12, 18]}
           highlightOnHover
           striped
           responsive

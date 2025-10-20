@@ -1,28 +1,44 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../SignIn/Auth.css";
-import {
-  createUserWithEmailAndPassword,
-  fetchSignInMethodsForEmail,
-} from "firebase/auth";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../firebase";
 import API from "../../api/axiosInstance";
 import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner";
+import { useForm } from "react-hook-form";
 
 const SignUp: React.FC = () => {
-  const [data, setData] = useState({
-    name: "",
-    phone: "",
-    email: "",
-    password: "",
+  interface signUpProps {
+    name: string;
+    phone: string;
+    email: string;
+    password: string;
+  }
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<signUpProps>({
+    defaultValues: {
+      name: "",
+      phone: "",
+      email: "",
+      password: "",
+    },
   });
+  // const [data, setData] = useState({
+  //   name: "",
+  //   phone: "",
+  //   email: "",
+  //   password: "",
+  // });
 
   const navigate = useNavigate();
 
   const signUpMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (data: signUpProps) => {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         data.email,
@@ -55,63 +71,58 @@ const SignUp: React.FC = () => {
     },
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setData({ ...data, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    signUpMutation.mutate();
+  const onSubmit = async (data: signUpProps) => {
+    signUpMutation.mutate(data);
   };
 
   return (
     <div className="wrapper">
       <div className="auth-container">
         <h1>Sign Up</h1>
-        <form onSubmit={handleSubmit} className="auth-form">
+        <form onSubmit={handleSubmit(onSubmit)} className="auth-form">
           <label>
             Name:
             <input
               type="text"
-              name="name"
-              value={data.name}
-              onChange={handleChange}
-              required
+              {...register("name", { required: "Name is required" })}
               disabled={signUpMutation.isPending}
             />
+            {errors.name && (
+              <p className="error-message">{errors.name.message}</p>
+            )}
           </label>
           <label>
             Phone:
             <input
               type="tel"
-              name="phone"
-              value={data.phone}
-              onChange={handleChange}
-              required
+              {...register("phone", { required: "Phone is required" })}
               disabled={signUpMutation.isPending}
             />
+            {errors.phone && (
+              <p className="error-message">{errors.phone.message}</p>
+            )}
           </label>
           <label>
             Email:
             <input
               type="email"
-              name="email"
-              value={data.email}
-              onChange={handleChange}
-              required
+              {...register("email", { required: "Email is required" })}
               disabled={signUpMutation.isPending}
             />
+            {errors.email && (
+              <p className="error-message">{errors.email.message}</p>
+            )}
           </label>
           <label>
             Password:
             <input
               type="password"
-              name="password"
-              value={data.password}
-              onChange={handleChange}
-              required
+              {...register("password", { required: "Password is required" })}
               disabled={signUpMutation.isPending}
             />
+            {errors.password && (
+              <p className="error-message">{errors.password.message}</p>
+            )}
           </label>
 
           <button

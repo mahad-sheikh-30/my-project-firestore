@@ -8,6 +8,8 @@ import { useMutation } from "@tanstack/react-query";
 import API from "../../api/axiosInstance";
 import toast from "react-hot-toast";
 import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner";
+import { useForm } from "react-hook-form";
+
 import {
   GoogleAuthProvider,
   signInWithPopup,
@@ -16,16 +18,28 @@ import {
 import googleIcon from "../../assets/google-icon.png";
 
 const SignIn: React.FC = () => {
-  const [data, setData] = useState({ email: "", password: "" });
+  // const [data, setData] = useState({ email: "", password: "" });
 
   const { setUser } = useUser();
   const navigate = useNavigate();
 
-  const signInMutation = useMutation({
-    mutationFn: async () => {
-      if (!data.email || !data.password)
-        throw new Error("Email and password are required.");
+  interface signInProps {
+    email: string;
+    password: string;
+  }
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<signInProps>({
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
 
+  const signInMutation = useMutation({
+    mutationFn: async (data: signInProps) => {
       const userCredential = await signInWithEmailAndPassword(
         auth,
         data.email,
@@ -130,41 +144,36 @@ const SignIn: React.FC = () => {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setData({ ...data, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    signInMutation.mutate();
+  const onSubmit = async (data: signInProps) => {
+    signInMutation.mutate(data);
   };
 
   return (
     <div className="wrapper">
       <div className="auth-container">
         <h1>Sign In</h1>
-        <form onSubmit={handleSubmit} className="auth-form">
+        <form onSubmit={handleSubmit(onSubmit)} className="auth-form">
           <label>
             Email:
             <input
               type="email"
-              name="email"
-              value={data.email}
-              onChange={handleChange}
-              required
+              {...register("email", { required: "Email is required" })}
               disabled={signInMutation.isPending}
             />
+            {errors.email && (
+              <p className="error-message">{errors.email.message}</p>
+            )}
           </label>
           <label>
             Password:
             <input
               type="password"
-              name="password"
-              value={data.password}
-              onChange={handleChange}
-              required
+              {...register("password", { required: "Password is required" })}
               disabled={signInMutation.isPending}
             />
+            {errors.password && (
+              <p className="error-message">{errors.password.message}</p>
+            )}
           </label>
 
           <button

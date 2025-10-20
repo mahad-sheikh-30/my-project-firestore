@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-
 import "./AdminForms.css";
+
 import { getAllTeachers } from "../../api/teacherApi";
 import {
   getAllCourses,
@@ -13,6 +13,20 @@ import {
 import toast from "react-hot-toast";
 import AppDataTable from "../../components/AppDataTable/AppDataTable";
 import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner";
+import { useForm } from "react-hook-form";
+
+interface CourseFormInputs {
+  id?: string;
+  title: string;
+  category: string;
+  tag: string;
+  price: number;
+  coursesCount: number;
+  studentsCount: number;
+  image: FileList;
+  teacherId: string;
+  popular: boolean;
+}
 
 const courseColumns = [
   {
@@ -23,24 +37,41 @@ const courseColumns = [
 ];
 
 const CoursesAdmin: React.FC = () => {
-  const [formData, setFormData] = useState({
-    id: "",
-    title: "",
-    category: "",
-    tag: "Free",
-    price: 0,
-    coursesCount: 0,
-    studentsCount: 0,
-    image: null as File | null,
-    teacherId: "",
-    popular: false,
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<CourseFormInputs>({
+    defaultValues: {
+      title: "",
+      category: "",
+      tag: "Free",
+      price: 0,
+      coursesCount: 0,
+      studentsCount: 0,
+      teacherId: "",
+      popular: false,
+    },
   });
 
   const [isEditing, setIsEditing] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
+
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const queryClient = useQueryClient();
+
+  const watchedPrice = watch("price");
+
+  useEffect(() => {
+    if (watchedPrice > 0) {
+      setValue("tag", "Premium", { shouldDirty: true });
+    } else {
+      setValue("tag", "Free", { shouldDirty: true });
+    }
+  }, [watchedPrice, setValue]);
 
   const { data: courses = [], isLoading: coursesLoading } = useQuery({
     queryKey: ["courses"],
@@ -81,80 +112,48 @@ const CoursesAdmin: React.FC = () => {
     onError: () => toast.error("Failed to delete course!"),
   });
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value, type } = e.target;
-
-    if (type === "checkbox") {
-      const target = e.target as HTMLInputElement;
-      setFormData({ ...formData, [name]: target.checked });
-    } else if (name === "price") {
-      const priceValue = Number(value);
-      setFormData({
-        ...formData,
-        price: priceValue,
-        tag: priceValue <= 0 ? "Free" : "Premium",
-      });
-    } else {
-      setFormData({ ...formData, [name]: value });
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (submitting) return;
-    setSubmitting(true);
-
+  const onSubmit = async (data: CourseFormInputs) => {
+    if (isSubmitting) return;
     try {
       const fileData = new FormData();
-      fileData.append("title", formData.title);
-      fileData.append("category", formData.category);
-      fileData.append("tag", formData.tag);
-      fileData.append("price", String(formData.price));
-      fileData.append("coursesCount", String(formData.coursesCount));
-      fileData.append("studentsCount", String(formData.studentsCount));
-      fileData.append("teacherId", formData.teacherId);
-      fileData.append("popular", String(formData.popular));
+      fileData.append("title", data.title);
+      fileData.append("category", data.category);
+      fileData.append("tag", data.tag);
+      fileData.append("price", String(data.price));
+      fileData.append("coursesCount", String(data.coursesCount));
+      fileData.append("studentsCount", String(data.studentsCount));
+      fileData.append("teacherId", data.teacherId);
+      fileData.append("popular", String(data.popular));
 
-      if (formData.image) {
-        fileData.append("image", formData.image);
+      const imageFile = data.image?.[0];
+      if (imageFile) {
+        fileData.append("image", imageFile);
       }
 
-      if (isEditing) {
-        await updateMutation.mutateAsync({ id: formData.id, form: fileData });
+      if (isEditing && data.id) {
+        await updateMutation.mutateAsync({ id: data.id, form: fileData });
       } else {
         await createMutation.mutateAsync(fileData);
       }
 
-      setFormData({
-        id: "",
-        title: "",
-        category: "",
-        tag: "Free",
-        price: 0,
-        coursesCount: 0,
-        studentsCount: 0,
-        image: null,
-        teacherId: "",
-        popular: false,
-      });
-
+      reset();
       setImagePreview(null);
       setIsEditing(false);
     } catch (err) {
       console.error("Error saving course:", err);
-      alert("Failed!");
-    } finally {
-      setSubmitting(false);
     }
   };
 
   const handleEdit = (course: any) => {
-    setFormData({
-      ...course,
-      teacherId: course.teacherId.id,
-    });
+    setValue("id", course.id);
+    setValue("title", course.title);
+    setValue("category", course.category);
+    setValue("tag", course.tag);
+    setValue("price", course.price);
+    setValue("coursesCount", course.coursesCount);
+    setValue("studentsCount", course.studentsCount);
+    setValue("teacherId", course.teacherId.id);
+    setValue("popular", course.popular);
     setImagePreview(course.image || null);
     setIsEditing(true);
     window.scrollTo({ top: 70, behavior: "smooth" });
@@ -178,94 +177,117 @@ const CoursesAdmin: React.FC = () => {
         <h2>{isEditing ? "Edit Course" : "Add Course"}</h2>
         <hr />
 
-        <form className="form-container" onSubmit={handleSubmit}>
+        <form className="form-container" onSubmit={handleSubmit(onSubmit)}>
           <div className="form-row">
             <label>
               Title
               <input
                 type="text"
-                name="title"
-                placeholder="Title"
-                value={formData.title}
-                onChange={handleChange}
-                required
+                placeholder="Course Title"
+                {...register("title", { required: "Title is required" })}
               />
             </label>
+            {errors.title && (
+              <p className="error-message">{errors.title.message}</p>
+            )}
 
             <label>
               Category
               <input
                 type="text"
-                name="category"
                 placeholder="Category"
-                value={formData.category}
-                onChange={handleChange}
-                required
+                {...register("category", { required: "Category is required" })}
               />
             </label>
+            {errors.category && (
+              <p className="error-message">{errors.category.message}</p>
+            )}
           </div>
 
           <div className="form-row">
             <label>
               Tag
-              <input type="text" name="tag" value={formData.tag} readOnly />
+              <input
+                type="text"
+                placeholder="Tag"
+                {...register("tag")}
+                readOnly
+              />
+              {errors.tag && (
+                <p className="error-message">{errors.tag.message}</p>
+              )}
             </label>
 
             <label>
               Price
               <input
                 type="number"
-                name="price"
                 placeholder="Price"
-                required
-                value={formData.price}
-                onChange={handleChange}
-                min="0"
+                {...register("price", {
+                  required: "Price is required",
+                  min: { value: 0, message: "Min price is 0" },
+                  valueAsNumber: true,
+                })}
               />
-            </label>
-
-            <label>
-              Lessons Count
-              <input
-                type="number"
-                name="coursesCount"
-                placeholder="Lessons Count"
-                value={formData.coursesCount || ""}
-                onChange={handleChange}
-                min="1"
-              />
+              {errors.price && (
+                <p className="error-message">{errors.price.message}</p>
+              )}
             </label>
           </div>
 
           <div className="form-row">
             <label>
+              Lessons Count
+              <input
+                type="number"
+                placeholder="Lessons Count"
+                {...register("coursesCount", {
+                  required: "Courses Count is required",
+                  min: { value: 1, message: "Min lessons count is 1" },
+                  valueAsNumber: true,
+                })}
+              />
+              {errors.coursesCount && (
+                <p className="error-message">{errors.coursesCount.message}</p>
+              )}
+            </label>
+
+            <label>
               Students Count
               <input
                 type="number"
-                name="studentsCount"
                 placeholder="Students Count"
-                value={formData.studentsCount || ""}
-                onChange={handleChange}
-                min="0"
+                {...register("studentsCount", {
+                  required: "Students Count is required",
+                  min: { value: 0, message: "Min students count is 0" },
+                  valueAsNumber: true,
+                })}
               />
+              {errors.studentsCount && (
+                <p className="error-message">{errors.studentsCount.message}</p>
+              )}
             </label>
-
+          </div>
+          <div className="form-row">
             <label>
               Image
               <input
                 type="file"
-                name="image"
-                onChange={(e) => {
-                  const file = e.target.files?.[0] || null;
-                  setFormData({
-                    ...formData,
-                    image: file,
-                  });
-                  if (file) {
-                    setImagePreview(URL.createObjectURL(file));
-                  }
-                }}
+                {...register("image", {
+                  required: isEditing ? false : "Image is required",
+                  onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+                    const file = e.target.files?.[0] || null;
+                    if (file) {
+                      setImagePreview(URL.createObjectURL(file));
+                    } else if (!isEditing) {
+                      setImagePreview(null);
+                    }
+                  },
+                })}
               />
+              {errors.image && (
+                <p className="error-message">{errors.image.message}</p>
+              )}
             </label>
             {imagePreview && (
               <div className="preview">
@@ -273,15 +295,11 @@ const CoursesAdmin: React.FC = () => {
               </div>
             )}
           </div>
-
           <div className="form-row">
             <label>
               Teacher
               <select
-                name="teacherId"
-                value={formData.teacherId}
-                onChange={handleChange}
-                required
+                {...register("teacherId", { required: "Teacher is required" })}
               >
                 <option value="">Select a teacher</option>
                 {teachers.map((teacher: any) => (
@@ -290,21 +308,19 @@ const CoursesAdmin: React.FC = () => {
                   </option>
                 ))}
               </select>
+              {errors.teacherId && (
+                <p className="error-message">{errors.teacherId.message}</p>
+              )}
             </label>
 
             <label className="checkbox-label">
               Popular:
-              <input
-                type="checkbox"
-                name="popular"
-                checked={formData.popular}
-                onChange={handleChange}
-              />
+              <input type="checkbox" {...register("popular")} />
             </label>
           </div>
 
-          <button type="submit" disabled={submitting}>
-            {submitting ? (
+          <button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? (
               <LoadingSpinner />
             ) : isEditing ? (
               "Update Course"
@@ -315,6 +331,7 @@ const CoursesAdmin: React.FC = () => {
         </form>
       </div>
 
+      {deleteMutation.isPending && <LoadingSpinner />}
       <AppDataTable
         title="All Courses"
         data={courses}

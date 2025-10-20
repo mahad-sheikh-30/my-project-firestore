@@ -6,6 +6,7 @@ import {
   FaTwitter,
   FaYoutube,
 } from "react-icons/fa";
+import logo from "/open-book.png";
 
 const Footer: React.FC = () => {
   return (
@@ -52,6 +53,9 @@ const Footer: React.FC = () => {
             <a href="#">
               <FaYoutube />
             </a>
+          </div>
+          <div className="footer-logo">
+            <img src={logo} alt="" />
           </div>
         </div>
       </div>
