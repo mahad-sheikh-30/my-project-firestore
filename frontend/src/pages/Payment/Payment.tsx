@@ -34,6 +34,18 @@ const CheckoutForm: React.FC<{ clientSecret: string; course: Course }> = ({
   const { updateRole } = useUser();
   const queryClient = useQueryClient();
 
+  useEffect(() => {
+    const focusTimer = setInterval(() => {
+      const cardNumber = elements?.getElement(CardNumberElement);
+      if (cardNumber) {
+        cardNumber.focus();
+        clearInterval(focusTimer);
+      }
+    }, 100);
+
+    return () => clearInterval(focusTimer);
+  }, [elements]);
+
   const enrollMutation = useMutation({
     mutationFn: (courseId: string) => createEnrollment({ courseId }),
     onSuccess: async (_, courseId) => {
@@ -88,21 +100,39 @@ const CheckoutForm: React.FC<{ clientSecret: string; course: Course }> = ({
     },
     invalid: { color: "red" },
   };
+  const handleCardNumberChange = (event: any) => {
+    if (event.complete) {
+      const expiry = elements?.getElement(CardExpiryElement);
+      expiry?.focus();
+    }
+  };
 
+  const handleExpiryChange = (event: any) => {
+    if (event.complete) {
+      const cvc = elements?.getElement(CardCvcElement);
+      cvc?.focus();
+    }
+  };
   return (
     <form onSubmit={handleSubmit} className="payment-form">
       <h3 className="checkout-heading">Enter Payment Details</h3>
 
       <label className="field-label">Card Number</label>
       <div className="input-box">
-        <CardNumberElement options={{ style: elementStyle }} />
+        <CardNumberElement
+          options={{ style: elementStyle }}
+          onChange={handleCardNumberChange}
+        />
       </div>
 
       <div className="row">
         <div className="col">
           <label className="field-label">Expiry</label>
           <div className="input-box">
-            <CardExpiryElement options={{ style: elementStyle }} />
+            <CardExpiryElement
+              options={{ style: elementStyle }}
+              onChange={handleExpiryChange}
+            />
           </div>
         </div>
 

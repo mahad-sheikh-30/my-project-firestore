@@ -34,6 +34,11 @@ const courseColumns = [
     selector: (row: any) => row.title,
     sortable: true,
   },
+  {
+    name: "Teacher",
+    selector: (row: any) => row.teacherId?.name || "N/A",
+    sortable: true,
+  },
 ];
 
 const CoursesAdmin: React.FC = () => {
@@ -90,7 +95,7 @@ const CoursesAdmin: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ["courses"] });
       toast.success("Course added!");
     },
-    onError: () => toast.error("Failed to add course!"),
+    onError: () => toast.error("Failed to add Course!"),
   });
 
   const updateMutation = useMutation({
