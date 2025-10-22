@@ -21,7 +21,8 @@ router.post("/firebase-login", async (req, res) => {
     }
 
     const userName = name || decodedToken.name || "Facebook User";
-    const userEmail = email || `${userName.trim()}@facebook.temp`;
+    const userEmail =
+      email || `${userName.replace(" ", "")}${uid.slice(0, 3)}@facebook.com`;
 
     const emailSnapshot = await db
       .collection("users")

@@ -1,4 +1,4 @@
-import React, { use, useState } from "react";
+import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Auth.css";
 import { useUser } from "../../context/UserContext";
@@ -18,8 +18,6 @@ import {
 import googleIcon from "../../assets/google-icon.png";
 
 const SignIn: React.FC = () => {
-  // const [data, setData] = useState({ email: "", password: "" });
-
   const { setUser } = useUser();
   const navigate = useNavigate();
 

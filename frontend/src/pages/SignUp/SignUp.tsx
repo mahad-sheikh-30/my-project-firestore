@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../SignIn/Auth.css";
 import { createUserWithEmailAndPassword } from "firebase/auth";
@@ -16,6 +16,7 @@ const SignUp: React.FC = () => {
     email: string;
     password: string;
   }
+
   const {
     register,
     handleSubmit,
@@ -28,12 +29,6 @@ const SignUp: React.FC = () => {
       password: "",
     },
   });
-  // const [data, setData] = useState({
-  //   name: "",
-  //   phone: "",
-  //   email: "",
-  //   password: "",
-  // });
 
   const navigate = useNavigate();
 
@@ -45,8 +40,6 @@ const SignUp: React.FC = () => {
         data.password
       );
       const firebaseUser = userCredential.user;
-      console.log("user credentials:", userCredential);
-      console.log("Firebase user :", firebaseUser);
 
       await API.post("/users", {
         name: data.name,

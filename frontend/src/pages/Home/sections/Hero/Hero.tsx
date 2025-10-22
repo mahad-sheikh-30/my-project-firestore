@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import "./Hero.css";
-import axios from "axios";
 import badge from "../../../../assets/badge.png";
 import girl1 from "../../../../assets/girl-1.png";
 import courseSvg from "../../../../assets/course.svg";
@@ -8,7 +7,6 @@ import userCircle from "../../../../assets/user-circle.png";
 import magicleap from "../../../../assets/magicleap.png";
 import microsoft from "../../../../assets/microsoft.png";
 import codecov from "../../../../assets/codecov.png";
-import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 
 const Hero: React.FC = () => {
