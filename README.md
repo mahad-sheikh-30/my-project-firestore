@@ -14,12 +14,13 @@ Guests can explore free courses and general site content.
 
 👨‍🏫 **User Roles**
 
-**Role	      Email	                      Password	 Access**
-Admin	        admin@etech.com	            ADMIN1     Full Admin Dashboard
-Student 1	    ameerhamza68@gmail.com	    AMEER1	   Student
-Student 2	    mominsheikh718@gmail.com	  MOMIN1	   Student
+
+Admin	        admin@etech.com	            ADMIN1   ---
+Student 1	    ameerhamza68@gmail.com	    AMEER1	 ---
+Student 2	    mominsheikh718@gmail.com	  MOMIN1	 ---
 
 You can also register new accounts using Email, Google, or Facebook.
+
 
 
 🚀** Core Features**
@@ -60,13 +61,13 @@ Fully responsive and clean UI
 
 🧰** Tech Stack**
 
-**Layer	        Technology**
-Frontend	      React (Vite) + TypeScript, React Router, React Query
-Styling	        CSS
-Backend	        Node.js + Express
-Database	      Firebase Firestore
-Authentication	Firebase Auth (Email, Google, Facebook)
-Payments	      Stripe
+
+Frontend	     |  React (Vite) + TypeScript, React Router, React Query ---
+Styling	       |  CSS ---
+Backend	       |  Node.js + Express ---
+Database	     |  Firebase Firestore ---
+Authentication |	Firebase Auth (Email, Google, Facebook) ---
+Payments	     |  Stripe ---
 
 
 
@@ -91,7 +92,7 @@ The student’s enrollment list updates automatically.
 ⚙️ **Setup Instructions**
 
 1️⃣** Clone Repository**
-git clone https://github.com/mahad-sheikh-30/my-project-firestore.git
+git clone https://github.com/mahad-sheikh-30/my-project-firestore.git ---
 cd my-project-firestore
 
 2️⃣ **Backend Setup**
@@ -133,14 +134,14 @@ VITE_BACKEND_URL=http://localhost:8080
 
 🔗 **API Routes (Express Backend)**
 
-**Method	    Endpoint	            Description	                Access**
-GET	          /api/courses	        Fetch all courses	          Public
-POST	        /api/courses	        Add a new course	          Admin
-PUT	          /api/courses/:id	    Edit a course	              Admin
-DELETE	      /api/courses/:id	    Delete a course	            Admin
-POST	        /api/enroll	          Enroll in course (Stripe)	  Student
-GET	          /api/enrollments	    Get user enrollments	      Student
-POST	        /api/contact	        Submit contact form	        Public
+
+GET	          /api/courses	        Fetch all courses	          Public  ---
+POST	        /api/courses	        Add a new course	          Admin   ---
+PUT	          /api/courses/:id	    Edit a course	              Admin   ---
+DELETE	      /api/courses/:id	    Delete a course	            Admin   ---
+POST	        /api/enroll	          Enroll in course (Stripe)	  Student ---
+GET	          /api/enrollments	    Get user enrollments	      Student ---
+POST	        /api/contact	        Submit contact form	        Public ---
 
 
 🔮 **Future Enhancements**
