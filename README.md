@@ -70,28 +70,6 @@ Payments	      Stripe
 
 
 
-🗂️ **Project Structure**
-Etech-App/
-├── backend/
-│   ├── server.js
-│   ├── routes/
-│   ├── middleware/
-│   ├── firestore.js
-│   └── package.json
-│
-├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── context/
-│   │   ├── api/
-│   │   └── App.tsx
-│   ├── public/
-│   └── package.json
-│
-└── README.md
-
-
 🔄 **Authentication & Enrollment Flow**
 
 User signs in using Firebase Auth (Email, Google, or Facebook).
