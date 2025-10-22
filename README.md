@@ -23,6 +23,7 @@ You can also register new accounts using Email, Google, or Facebook.
 
 
 
+
 🚀** Core Features**
 
 
@@ -51,6 +52,23 @@ Pay securely through Stripe Checkout
 Enrollments saved in Firestore
 Submit feedback and contact forms
 
+
+Screenshots:
+
+<img width="500" height="280" alt="image" src="https://github.com/user-attachments/assets/3fccaa94-09e5-466b-905f-64ab9d0ddb04" />
+
+<img width="500" height="280" alt="image" src="https://github.com/user-attachments/assets/8ccc0632-ba26-4357-9a0e-5d0605f8877b" />
+<img width="500" height="280" alt="image" src="https://github.com/user-attachments/assets/973b7757-9d1c-46be-b468-ab16dfabbf87" />
+<img width="500" height="280" alt="image" src="https://github.com/user-attachments/assets/d72e463e-22b6-43ef-9aa9-45c338bf0bee" />
+<img width="500" height="280" alt="image" src="https://github.com/user-attachments/assets/d83ea56e-24e8-4a07-a87d-5df92ed4c93b" />
+<img width="500" height="280" alt="image" src="https://github.com/user-attachments/assets/0bf0dcd9-02ab-4082-88d4-b147bdec37a3" />
+<img width="500" height="280" alt="image" src="https://github.com/user-attachments/assets/5399f4ee-cc54-40e1-aa6e-0af5053d9854" />
+
+<img width="500" height="280" alt="image" src="https://github.com/user-attachments/assets/677cd292-f721-4aa2-ab7a-653c801734cf" />
+<img width="500" height="280" alt="image" src="https://github.com/user-attachments/assets/465e810c-43dd-4e77-be0b-14e926d15267" />
+<img width="500" height="280" alt="image" src="https://github.com/user-attachments/assets/c5f7e8d3-581a-4722-84ce-c3176477c5a6" />
+<img width="500" height="280" alt="image" src="https://github.com/user-attachments/assets/17213072-67da-4419-b750-19902f09e868" />
+<img width="500" height="280" alt="image" src="https://github.com/user-attachments/assets/8a251a5a-801a-476e-a476-7b8f3dac85b7" />
 
 🏠** Public Pages**
 
